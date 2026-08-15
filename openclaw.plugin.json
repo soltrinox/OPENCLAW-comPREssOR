@@ -1,0 +1,55 @@
+{
+  "id": "compressor",
+  "name": "comPREssOR",
+  "description": "comPREssOR context-engine plugin. Registers the exclusive slot; assemble packs dual-state memory.",
+  "version": "0.0.0-dev",
+  "kind": "context-engine",
+  "activation": {
+    "onStartup": true
+  },
+  "skills": ["./skill/compressor"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "profile": {
+        "type": "string",
+        "enum": ["recall-0.5", "cursor-parity"],
+        "default": "recall-0.5"
+      },
+      "stateDir": {
+        "type": "string",
+        "default": "~/.openclaw/context-graphs"
+      },
+      "kMax": { "type": "integer", "minimum": 1, "default": 64 },
+      "chunksPerTurn": { "type": "integer", "minimum": 1, "default": 16 },
+      "poolEma": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.5 },
+      "protectKinds": {
+        "type": "array",
+        "items": { "type": "string" },
+        "default": ["path", "decision", "identifier"]
+      },
+      "forwardBudget": { "type": "integer", "minimum": 1, "default": 2048 },
+      "hotSetMaxChars": { "type": "integer", "minimum": 1, "default": 800 },
+      "keepRecentTokens": { "type": "integer", "minimum": 0, "default": 4000 },
+      "noveltyBudgetFloor": { "type": "number", "minimum": 0, "maximum": 1, "default": 1.0 },
+      "rankFallbackTopK": { "type": "integer", "minimum": 0, "default": 8 },
+      "matrixSpanReadout": { "type": "boolean", "default": true },
+      "matrixSpanK": { "type": "integer", "minimum": 0, "default": 8 },
+      "ingestToolResults": { "type": "boolean", "default": true },
+      "skipHeartbeats": { "type": "boolean", "default": true },
+      "pythonPath": { "type": "string", "default": "auto" },
+      "engineImpl": {
+        "type": "string",
+        "enum": ["sidecar", "ts"],
+        "default": "sidecar"
+      },
+      "promoteMemoryNotes": { "type": "boolean", "default": false },
+      "injectP1": { "type": "boolean", "default": false },
+      "shareGraphByAgent": { "type": "boolean", "default": false }
+    }
+  },
+  "contracts": {
+    "agentToolResultMiddleware": ["openclaw"]
+  }
+}

@@ -1,0 +1,8 @@
+Fact: 550e8400-e29b-41d4-a716-446655440000
+OpenItem wire jwt: open: wire jwt
+Fact UUID 550e8400-e29b-41d4-a716-446655440000 path src/auth.ts
+TODO: wire jwt
+We dec: UUID 550e8400-e29b-41d4-a716-446655440000 path src/auth.ts
+TO...
+Fact src/auth.ts: path: src/auth.ts
+Fact Decision: use TypeScript.: Decision: use TypeScript.

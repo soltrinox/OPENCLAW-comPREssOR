@@ -1,0 +1,9 @@
+# Keep pack lean: ship engine sources for sidecar provision; omit caches and local tests.
+**/__pycache__/**
+**/*.pyc
+**/.pytest_cache/**
+**/egg-info/**
+**/*.egg-info/**
+engine/tests/**
+*.tgz
+.DS_Store

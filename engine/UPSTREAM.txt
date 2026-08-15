@@ -1,0 +1,4 @@
+upstream: comPREssOR
+sha: 6e6f76212ed4fbbb111ae9ff8ac706b1fa5dd505
+vendored: 2026-08-15
+note: OpenClaw fork; claw_cli.py added; do not import hook_cli from OpenClaw path

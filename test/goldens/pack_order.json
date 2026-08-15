@@ -1,0 +1,17 @@
+{
+  "hot_set": "OpenItem fix-auth: open: fix-auth\nFact path: a/b.ts",
+  "typed_lines": [
+    "OpenItem: open: fix-auth",
+    "Path: a/b.ts",
+    "Fact: decided to use ts"
+  ],
+  "ranked_chunks": [
+    "relevant chunk about auth",
+    "another chunk"
+  ],
+  "budget": 256,
+  "text": "HOT_SET:\nOpenItem fix-auth: open: fix-auth\nFact path: a/b.ts\n\nOpenItem: open: fix-auth\n\nPath: a/b.ts\n\nFact: decided to use ts\n\nrelevant chunk about auth\n\nanother chunk",
+  "packed_tokens": 42,
+  "method": "query-pack",
+  "tau_hot": 15
+}

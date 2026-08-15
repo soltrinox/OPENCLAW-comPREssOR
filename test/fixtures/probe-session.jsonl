@@ -1,0 +1,39 @@
+{"fixture_version":1,"role":"meta","content":"OpenClaw-like frozen probe transcript. UUID 550e8400-e29b-41d4-a716-446655440000 path src/ids.ts OpenItem sanitize session keys"}
+{"role":"user","content":"OpenItem: sanitize session keys. Track UUID 550e8400-e29b-41d4-a716-446655440000 in src/ids.ts. Do not lose these identifiers."}
+{"role":"assistant","content":"Acknowledged. Working OpenItem sanitize session keys on src/ids.ts with UUID 550e8400-e29b-41d4-a716-446655440000."}
+{"role":"user","content":"turn-2 expand the sanitize helpers"}
+{"role":"assistant","content":"turn-2 drafting helper stubs"}
+{"role":"user","content":"turn-3 add unit coverage outline"}
+{"role":"assistant","content":"turn-3 listed cases for session key sanitization"}
+{"role":"user","content":"turn-4 check imports"}
+{"role":"assistant","content":"turn-4 imports look fine"}
+{"role":"assistant","content":"calling exec","toolCalls":[{"id":"c-dump","name":"exec"}]}
+{"role":"tool","toolCallId":"c-dump","toolName":"exec","content":"DUMP_BEGIN\n/tmp/noise/a.ts\n/tmp/noise/b.ts\n/var/log/syslog\nnode_modules/lodash/index.js\nnode_modules/react/index.js\nREADME.md\npackage-lock.json\n.yarn/cache/foo\ndist/chunk-001.js\ndist/chunk-002.js\nLorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum.\nPATH=/usr/local/bin:/usr/bin:/bin\nHOME=/home/ci\nPWD=/workspace\nDUMP_END\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}
+{"role":"user","content":"turn-6 continue after dump"}
+{"role":"assistant","content":"turn-6 dump noted; continuing"}
+{"role":"user","content":"turn-7 refine sanitize"}
+{"role":"assistant","content":"turn-7 refining"}
+{"role":"user","content":"turn-8 edge cases"}
+{"role":"assistant","content":"turn-8 empty string and null"}
+{"role":"user","content":"heartbeat ping","isHeartbeat":true}
+{"role":"user","content":"turn-10 status?"}
+{"role":"assistant","content":"turn-10 still on sanitize"}
+{"role":"user","content":"turn-11 review path handling"}
+{"role":"assistant","content":"turn-11 paths normalized"}
+{"role":"user","content":"turn-12 add logging"}
+{"role":"assistant","content":"turn-12 log line added"}
+{"role":"user","content":"turn-13 avoid double encode"}
+{"role":"assistant","content":"turn-13 fixed"}
+{"role":"user","content":"turn-14 docs note"}
+{"role":"assistant","content":"turn-14 note drafted"}
+{"role":"user","content":"turn-15 prepare PR summary"}
+{"role":"assistant","content":"turn-15 summary bullets"}
+{"role":"user","content":"turn-16 lint pass"}
+{"role":"assistant","content":"turn-16 clean"}
+{"role":"user","content":"turn-17 typecheck"}
+{"role":"assistant","content":"turn-17 ok"}
+{"role":"user","content":"turn-18 final review"}
+{"role":"assistant","content":"turn-18 ready"}
+{"role":"user","content":"turn-19 confirm OpenItem still active"}
+{"role":"assistant","content":"turn-19 yes"}
+{"role":"user","content":"At turn 20: what UUID and which file (path) and which OpenItem label were we tracking from turn 1?"}

@@ -1,0 +1,82 @@
+[
+  {
+    "text": "",
+    "tau": 0
+  },
+  {
+    "text": "a",
+    "tau": 1
+  },
+  {
+    "text": "hello",
+    "tau": 2
+  },
+  {
+    "text": "src/ids.ts",
+    "tau": 3
+  },
+  {
+    "text": "\u00e9moji \ud83d\ude80 test",
+    "tau": 3
+  },
+  {
+    "text": "OpenItem: fix-auth",
+    "tau": 5
+  },
+  {
+    "text": "path: engine/src/foo.py",
+    "tau": 6
+  },
+  {
+    "text": "The quick brown fox jumps over the lazy dog.",
+    "tau": 11
+  },
+  {
+    "text": "UUID 550e8400-e29b-41d4-a716-446655440000",
+    "tau": 11
+  },
+  {
+    "text": "https://example.com/x",
+    "tau": 6
+  },
+  {
+    "text": "line-0 line-0 line-0 line-0 line-0 line-0 line-0 line-0 line-0 line-0 ",
+    "tau": 18
+  },
+  {
+    "text": "line-1 line-1 line-1 line-1 line-1 line-1 line-1 line-1 line-1 line-1 ",
+    "tau": 18
+  },
+  {
+    "text": "line-2 line-2 line-2 line-2 line-2 line-2 line-2 line-2 line-2 line-2 ",
+    "tau": 18
+  },
+  {
+    "text": "line-3 line-3 line-3 line-3 line-3 line-3 line-3 line-3 line-3 line-3 ",
+    "tau": 18
+  },
+  {
+    "text": "line-4 line-4 line-4 line-4 line-4 line-4 line-4 line-4 line-4 line-4 ",
+    "tau": 18
+  },
+  {
+    "text": "line-5 line-5 line-5 line-5 line-5 line-5 line-5 line-5 line-5 line-5 ",
+    "tau": 18
+  },
+  {
+    "text": "line-6 line-6 line-6 line-6 line-6 line-6 line-6 line-6 line-6 line-6 ",
+    "tau": 18
+  },
+  {
+    "text": "line-7 line-7 line-7 line-7 line-7 line-7 line-7 line-7 line-7 line-7 ",
+    "tau": 18
+  },
+  {
+    "text": "line-8 line-8 line-8 line-8 line-8 line-8 line-8 line-8 line-8 line-8 ",
+    "tau": 18
+  },
+  {
+    "text": "line-9 line-9 line-9 line-9 line-9 line-9 line-9 line-9 line-9 line-9 ",
+    "tau": 18
+  }
+]
