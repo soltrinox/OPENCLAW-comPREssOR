@@ -49,10 +49,11 @@ find engine -type d \( -name '__pycache__' -o -name '.pytest_cache' \) -print0 2
 find engine -type d -name 'chat_compressor.egg-info' -print0 2>/dev/null \
   | xargs -0 rm -rf 2>/dev/null || true
 
-rm -f soltrinox-openclaw-compressor-*.tgz
+PKG_NAME="$(node -p 'require("./package.json").name.replace(/^@/, "").replace(/\//g, "-")')"
+rm -f "${PKG_NAME}"-*.tgz
 npm pack
 
-TGZ=$(ls -1 soltrinox-openclaw-compressor-*.tgz | head -1)
+TGZ=$(ls -1 "${PKG_NAME}"-*.tgz | head -1)
 test -n "$TGZ"
 LIST_LOG="$EVIDENCE_DIR/pack-list-plan11-${TS}.log.txt"
 
