@@ -49,12 +49,21 @@ find engine -type d \( -name '__pycache__' -o -name '.pytest_cache' \) -print0 2
 find engine -type d -name 'chat_compressor.egg-info' -print0 2>/dev/null \
   | xargs -0 rm -rf 2>/dev/null || true
 
+# Scoped names (@eni6ma/compressor-oc) pack as eni6ma-compressor-oc-<ver>.tgz
 PKG_NAME="$(node -p 'require("./package.json").name.replace(/^@/, "").replace(/\//g, "-")')"
+PKG_VERSION="$(node -p 'require("./package.json").version')"
+EXPECTED_TGZ="${PKG_NAME}-${PKG_VERSION}.tgz"
 rm -f "${PKG_NAME}"-*.tgz
 npm pack
 
-TGZ=$(ls -1 "${PKG_NAME}"-*.tgz | head -1)
-test -n "$TGZ"
+if [[ -f "$EXPECTED_TGZ" ]]; then
+  TGZ="$EXPECTED_TGZ"
+else
+  TGZ=$(ls -1 "${PKG_NAME}"-*.tgz | head -1)
+fi
+test -n "${TGZ:-}"
+test -f "$TGZ"
+echo "[PASS] tarball=$TGZ (from package.json name=$PKG_NAME)"
 LIST_LOG="$EVIDENCE_DIR/pack-list-plan11-${TS}.log.txt"
 
 {

@@ -1,12 +1,15 @@
 {
-  "name": "compressor-oc",
-  "version": "0.0.0-dev",
+  "name": "@eni6ma/compressor-oc",
+  "version": "0.1.0",
   "description": "comPREssOR: OpenClaw context-engine plugin that packs local dual-state memory into assemble().",
   "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/soltrinox/OPENCLAW-comPREssOR.git"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -34,7 +37,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "pack": "bash scripts/pack.sh",
-    "predeploy": "bash scripts/predeploy-smoke.sh"
+    "predeploy": "bash scripts/predeploy-smoke.sh",
+    "release:publish": "bash scripts/release-publish.sh"
   },
   "peerDependencies": {
     "openclaw": ">=2026.3.24-beta.2"

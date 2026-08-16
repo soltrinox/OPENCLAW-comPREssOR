@@ -13,7 +13,7 @@ openclaw plugins install -l .
 openclaw plugins inspect compressor --runtime --json
 ```
 
-`package.json` `openclaw.extensions` points at `./src/index.ts` for workspace/`-l` loads. `openclaw.runtimeExtensions` points at `./dist/index.js` for published artifacts (Plan 11). Do not publish this `0.0.0-dev` scaffold.
+`package.json` `openclaw.extensions` points at `./src/index.ts` for workspace/`-l` loads. `openclaw.runtimeExtensions` points at `./dist/index.js` for published artifacts. npm package name is `@eni6ma/compressor-oc`.
 
 ## Predeploy smoke
 
@@ -34,6 +34,17 @@ Evidence: `OPENCLAW/PLANS/evidence/predeploy-smoke-<TS>.log.txt`. Exit `0` only 
 | `EVIDENCE_DIR` | `../PLANS/evidence` | Master + child evidence logs |
 
 Gateway install/inspect is optional: missing CLI or `SKIP_GATEWAY=1` → `[NOT_RUN]`, never fails the required bar.
+
+## npm publish (eni6ma org)
+
+Live npm publish is separate from predeploy. Requires `NPM_TOKEN` and runs the build gate then `npm publish --access public`:
+
+```bash
+export NPM_TOKEN=…
+npm run release:publish
+```
+
+Package: `@eni6ma/compressor-oc`. Plugin/slot id stays `compressor`.
 
 ## Slot
 

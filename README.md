@@ -1,6 +1,8 @@
-# comPREssOR (`compressor-oc`)
+# comPREssOR (`@eni6ma/compressor-oc`)
 
 OpenClaw **context-engine** plugin (**comPREssOR**). It occupies the exclusive slot `plugins.slots.contextEngine` with engine id `compressor`.
+
+npm package: **`@eni6ma/compressor-oc`** (org `eni6ma`). Plugin/slot id remains `compressor`.
 
 ## What it is
 
@@ -10,9 +12,15 @@ This package will register a context engine that packs local dual-state memory i
 
 A small raw recent tail that keeps tool-call/result pairing, plus a typed pack (HOT_SET, facts, ranked spans). The model does not receive sqlite, safetensors, or graph JSON.
 
-## Install (local developer link)
+## Install
 
-ClawHub install (`openclaw plugins install clawhub:…`) is Plan 11. This version is a local link only:
+From npm (public scoped package):
+
+```bash
+npm install @eni6ma/compressor-oc
+```
+
+Local developer link:
 
 ```bash
 cd OPENCLAW/COMPRESSOR
@@ -21,6 +29,20 @@ npx tsc --noEmit
 openclaw plugins install -l .
 openclaw plugins inspect compressor --runtime --json
 ```
+
+## Publish (eni6ma npm org)
+
+Requires `NPM_TOKEN` (automation/access token with publish rights on `eni6ma`). Never commit tokens; `.npmrc` is gitignored.
+
+```bash
+export NPM_TOKEN=…   # from npmjs.org → Access Tokens
+npm run release:publish
+# or: bash scripts/release-publish.sh
+```
+
+The script runs `typecheck` → `build` → `pack`, then `npm publish --access public`, then `npm view @eni6ma/compressor-oc name version repository.url`.
+
+## Slot
 
 Set the exclusive slot (JSON5):
 
