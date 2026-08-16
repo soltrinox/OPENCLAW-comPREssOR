@@ -4,6 +4,8 @@ OpenClaw **context-engine** plugin (**comPREssOR**). It occupies the exclusive s
 
 npm package: **`@eni6ma/compressor-oc`** (org `eni6ma`). Plugin/slot id remains `compressor`.
 
+GitHub: [soltrinox/OPENCLAW-comPREssOR](https://github.com/soltrinox/OPENCLAW-comPREssOR).
+
 ## What it is
 
 This package will register a context engine that packs local dual-state memory into `assemble()`. **In this version it only registers.** It does not pack yet. `assemble` / `compact` / `commitTurn` throw `EngineNotReadyError` so the Gateway can quarantine to `legacy` instead of silently passing the full transcript through.
@@ -25,28 +27,11 @@ Local developer link:
 ```bash
 cd OPENCLAW/COMPRESSOR
 npm install
-npx tsc --noEmit
 openclaw plugins install -l .
 openclaw plugins inspect compressor --runtime --json
 ```
 
-## Publish (eni6ma npm org)
-
-Requires `NPM_TOKEN`: a **Granular Access Token** from [npm Access Tokens](https://www.npmjs.com/settings/~/tokens) with:
-
-- Type: **Automation**
-- Packages: org **`eni6ma`** — **Read and write**
-- **Bypass 2FA for automation** enabled (classic tokens / tokens without bypass get `E403` on publish)
-
-Never commit tokens; `.npmrc` is gitignored. Do not reuse tokens pasted into chat.
-
-```bash
-export NPM_TOKEN=…   # granular Automation token (eni6ma R/W + Bypass 2FA)
-npm run release:publish
-# or: bash scripts/release-publish.sh
-```
-
-The script runs `typecheck` → `build` → `pack`, then `npm publish --access public`, then `npm view @eni6ma/compressor-oc name version repository.url`. On `E403` / 2FA errors it prints the same token remediation.
+For operator install, slot config, and CLI details, see [docs/INSTALL.md](docs/INSTALL.md).
 
 ## Slot
 
@@ -92,6 +77,7 @@ Only one context engine is active. Installing this plugin and lossless-claw and 
 - [docs/INSTALL.md](docs/INSTALL.md)
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - [docs/RESEARCH.md](docs/RESEARCH.md) (methods stub; no product claims)
+- [GitHub](https://github.com/soltrinox/OPENCLAW-comPREssOR)
 
 ## License
 

@@ -17,14 +17,14 @@ openclaw plugins inspect compressor --runtime --json
 
 ## Predeploy smoke
 
-One command runs the Plan 11 GO prerequisite bar (offline tests, pack typecheck, sidecar when applicable, probe, manage load, pack, ClawHub validate + dry-run). It does **not** live-publish (`clawhub package publish` without `--dry-run` or `npm publish`).
+Optional local smoke before using the plugin in a Gateway:
 
 ```bash
 cd OPENCLAW/COMPRESSOR
 npm run predeploy
 ```
 
-Evidence: `OPENCLAW/PLANS/evidence/predeploy-smoke-<TS>.log.txt`. Exit `0` only when all required stages `[PASS]`. If ClawHub is present, validate `[FAIL]` fails the script (blocks GO).
+Evidence: `OPENCLAW/PLANS/evidence/predeploy-smoke-<TS>.log.txt`. Exit `0` only when all required stages `[PASS]`.
 
 | Env | Default | Effect |
 |-----|---------|--------|
@@ -35,16 +35,7 @@ Evidence: `OPENCLAW/PLANS/evidence/predeploy-smoke-<TS>.log.txt`. Exit `0` only 
 
 Gateway install/inspect is optional: missing CLI or `SKIP_GATEWAY=1` → `[NOT_RUN]`, never fails the required bar.
 
-## npm publish (eni6ma org)
-
-Live npm publish is separate from predeploy. Requires `NPM_TOKEN` (Granular Access Token: Automation type, org `eni6ma` packages read/write, **Bypass 2FA for automation** enabled). Classic tokens fail with `E403`. Never commit tokens.
-
-```bash
-export NPM_TOKEN=…   # https://www.npmjs.com/settings/~/tokens
-npm run release:publish
-```
-
-Package: `@eni6ma/compressor-oc`. Plugin/slot id stays `compressor`.
+Maintainers: see `scripts/release-publish.sh`.
 
 ## Slot
 
