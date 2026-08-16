@@ -1,6 +1,6 @@
 {
   "name": "@eni6ma/compressor-oc",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "comPREssOR: OpenClaw context-engine plugin that packs local dual-state memory into assemble().",
   "type": "module",
   "license": "MIT",

@@ -1,8 +1,8 @@
-# Install (local)
+# Install
 
 Node floor matches OpenClaw Gateway: **22.22.3+ / 24.15+ / 25.9+ / 26**. This package declares `engines.node: >=22.22.3`.
 
-## Local link (this phase)
+## Local link
 
 ```bash
 cd OPENCLAW/COMPRESSOR
@@ -15,35 +15,13 @@ openclaw plugins inspect compressor --runtime --json
 
 `package.json` `openclaw.extensions` points at `./src/index.ts` for workspace/`-l` loads. `openclaw.runtimeExtensions` points at `./dist/index.js` for published artifacts. npm package name is `@eni6ma/compressor-oc`.
 
-## Predeploy smoke
-
-Optional local smoke before using the plugin in a Gateway:
-
-```bash
-cd OPENCLAW/COMPRESSOR
-npm run predeploy
-```
-
-Evidence: `OPENCLAW/PLANS/evidence/predeploy-smoke-<TS>.log.txt`. Exit `0` only when all required stages `[PASS]`.
-
-| Env | Default | Effect |
-|-----|---------|--------|
-| `ENGINE_IMPL` | `sidecar` | Set to `ts` to skip sidecar smoke |
-| `SKIP_SIDECAR` | `0` | `1` skips sidecar stage |
-| `SKIP_GATEWAY` | `0` | `1` skips optional gateway install/inspect |
-| `EVIDENCE_DIR` | `../PLANS/evidence` | Master + child evidence logs |
-
-Gateway install/inspect is optional: missing CLI or `SKIP_GATEWAY=1` → `[NOT_RUN]`, never fails the required bar.
-
-Maintainers: see `scripts/release-publish.sh`.
-
 ## Slot
 
 Set `plugins.slots.contextEngine` to `compressor` and `plugins.entries.compressor.enabled` to `true`. Restart Gateway.
 
 ## stateDir
 
-Default `~/.openclaw/context-graphs`. Plan 01 doctor may `mkdir` and write a probe file, then delete it. Graph JSON and sqlite appear in Plan 02/03.
+Default `~/.openclaw/context-graphs`. Doctor may create the directory and probe writability. Graph JSON, sqlite, and packer state live under sanitized session keys.
 
 ## Revert
 
@@ -51,12 +29,12 @@ Uninstall the plugin or set the slot back to `legacy`. OpenClaw resets the slot 
 
 ## Python
 
-- **`engineImpl=sidecar` (0.1.0 default):** Python 3.11+ required; doctor fails if missing.
-- **`engineImpl=ts` (Plan 06 / 0.2.0 path):** Python not required. Doctor passes when interpreter is absent. Set `plugins.entries.compressor.config.engineImpl` to `"ts"`.
+- **`engineImpl=sidecar` (default):** Python 3.11+ required; doctor fails if missing.
+- **`engineImpl=ts`:** Python not required. Doctor passes when interpreter is absent. Set `plugins.entries.compressor.config.engineImpl` to `"ts"`.
 
 Missing interpreter is a **hard fail** only for the sidecar path.
 
-## CLI (Plan 08)
+## CLI
 
 Plugin registers an `openclaw compressor` command group (does not collide with core commands).
 
@@ -77,7 +55,7 @@ openclaw compressor export --session <sanitized-id> --format csv
 
 Every human-visible η line includes `unit=tau`. JSON `reductionRatio` is 0–1; the ASCII table prints percent.
 
-## Query API (Plan 08)
+## Query API
 
 In-process handlers (no standalone Express). When the Gateway exposes `registerHttpRoute` / `registerGatewayMethod`:
 
@@ -89,5 +67,4 @@ In-process handlers (no standalone Express). When the Gateway exposes `registerH
 - `POST /api/plugin/compressor/manage/compact` → typed checkpoint; requires `confirm: true`; never calls LLM
 - `POST /api/plugin/compressor/manage/purge` → requires `confirm` equal to session id
 
-If those registrars are missing, CLI still calls the same handlers; HTTP is graded `NOT_RUN`.
-
+If those registrars are missing, CLI still calls the same handlers; HTTP routes are simply unavailable.

@@ -197,34 +197,34 @@ interface TurnMetrics {
 
 ---
 
-## 7. Implementation Plan & Task DAG
+## 7. Implementation outline
 
-To safely introduce telemetry without destabilizing the core compressor logic, delivery is phased. This integrates into the master project plan (SPECS.md §16).
+Introduce telemetry without destabilizing the core compressor loop. Build backend instrumentation first, then CLI/API, then Control UI, then management actions.
 
-### Phase 1: Core Telemetry Plumbery (Backend)
+### Telemetry backend
 **Prerequisite:** Core `assemble()` and `compact()` loops must be functional.
-*   **[Task UI-1.1]** Create `telemetry.sqlite` schema and initial migrations.
-*   **[Task UI-1.2]** Implement `Tracker` singleton class with asynchronous non-blocking writes.
-*   **[Task UI-1.3]** Instrument `assemble.ts` and `compact.ts` to emit `TurnMetrics` events upon completion.
-*   **[Task UI-1.4]** Instrument the Python sidecar `claw_cli.py` to return duration and slot counts inside its stdout JSON response.
+*   Create `telemetry.sqlite` schema and initial migrations.
+*   Implement `Tracker` with asynchronous non-blocking writes.
+*   Instrument `assemble.ts` and `compact.ts` to emit `TurnMetrics` events upon completion.
+*   Instrument the Python sidecar `claw_cli.py` to return duration and slot counts inside its stdout JSON response.
 
-### Phase 2: CLI Integration & API endpoints
-*   **[Task UI-2.1]** Implement `src/api.ts` GET handlers to query the telemetry SQLite db and calculate $\eta$ and averages.
-*   **[Task UI-2.2]** Implement `src/cli/index.ts` commands (`stats`, `status`, `purge`).
-*   **[Task UI-2.3]** Add `doctor.ts` checks to ensure the `telemetry.sqlite` is writable and not corrupted.
+### CLI and API
+*   Implement `src/api.ts` GET handlers to query the telemetry SQLite db and calculate $\eta$ and averages.
+*   Implement `src/cli/index.ts` commands (`stats`, `status`, `purge`).
+*   Add `doctor.ts` checks to ensure `telemetry.sqlite` is writable and not corrupted.
 
-### Phase 3: Dashboard Control UI Build (Frontend)
+### Dashboard Control UI
 **Prerequisite:** OpenClaw Control UI API must be accessible.
-*   **[Task UI-3.1]** Scaffold the React/WebComponent tab descriptor in `src/ui/descriptors.ts`.
-*   **[Task UI-3.2]** Build Widget 1: Token Efficiency Area Charts (using lightweight charting libs like Recharts or Chart.js).
-*   **[Task UI-3.3]** Build Widget 2: Dual-State Capacity Gauges.
-*   **[Task UI-3.4]** Build Widget 3: Context Stack Composition bar charts.
-*   **[Task UI-3.5]** Build Widget 4: Diagnostics and live log viewer.
+*   Scaffold the tab descriptor in `src/ui/descriptors.ts`.
+*   Widget 1: Token Efficiency Area Charts (SVG polylines or a lightweight chart lib).
+*   Widget 2: Dual-State Capacity Gauges.
+*   Widget 3: Context Stack Composition bar charts.
+*   Widget 4: Diagnostics and live log viewer.
 
-### Phase 4: Management Actions & Hot-Swapping
-*   **[Task UI-4.1]** Implement the `DynamicProfileSwitcher` to allow config changes without Gateway restarts.
-*   **[Task UI-4.2]** Wire the UI action buttons (`Force Flush`, `Trigger Compaction`) to their respective REST POST endpoints.
-*   **[Task UI-4.3]** End-to-end testing of the Management Console interactions during active simulated load.
+### Management actions
+*   Implement `DynamicProfileSwitcher` for config changes without Gateway restarts.
+*   Wire UI action buttons (`Force Flush`, `Trigger Compaction`) to manage POSTs.
+*   End-to-end testing of management interactions under simulated load.
 
 ---
 
@@ -243,10 +243,7 @@ To safely introduce telemetry without destabilizing the core compressor logic, d
 
 ## 9. Future Research & Extensions
 
-As outlined in SPECS.md §19, the telemetry gathered by this dashboard opens new avenues for optimization:
-1.  **Auto-Tuning Profiles:** Using historical $\eta$ and pruning velocity, the dashboard could eventually suggest profile changes (e.g., "Notice: High graph thrashing detected. We recommend switching to the 'broad-recall' profile.")
+As outlined in SPECS.md §18, the telemetry gathered by this dashboard opens new avenues for optimization:
+1.  **Auto-Tuning Profiles:** Using historical $\eta$ and pruning velocity, the dashboard could eventually suggest profile changes (e.g., "High graph thrashing detected. Consider switching to the 'broad-recall' profile.")
 2.  **Semantic Health Scores:** Integrating an `entity_recall` proxy directly into the live dashboard, checking if key nouns from $q_t$ survived into $P_t$, rather than just tracking token volume.
 3.  **Cross-Session Benchmarking:** Allowing operators to compare token efficiency across different projects or workspaces to identify prompt-engineering anti-patterns.
-
----
-*End of Specs Extension. Ready for integration into Cursor IDE / Project Master Plan.*

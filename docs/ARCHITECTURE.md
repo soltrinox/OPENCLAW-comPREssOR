@@ -1,4 +1,4 @@
-# Architecture (Plans 03 + 06 + 08 + 09 — lifecycle + dual packer + API + Control UI)
+# Architecture
 
 ```text
 OpenClaw Gateway
@@ -12,7 +12,7 @@ OpenClaw Gateway
     info.ownsCompaction = true
     info.hostRequirements assemble-before-prompt
     PackerPort (src/packer-port.ts)
-      ├─ SidecarPacker  (engineImpl=sidecar → Plan 02 JSONL)
+      ├─ SidecarPacker  (engineImpl=sidecar → JSONL claw_cli)
       └─ TsPacker       (engineImpl=ts → src/ts-engine/*)
     bootstrap → recovery ingestBatch if graph empty
     ingest / ingestBatch → packer.step
@@ -23,7 +23,7 @@ OpenClaw Gateway
     dispose → packer.dispose + close SQLite
 ```
 
-## Dual implementation (Plan 06)
+## Dual implementation
 
 | engineImpl | Packer | Python | Matrix |
 |------------|--------|--------|--------|
@@ -52,7 +52,7 @@ agent run
   → assemble
        resolve handle / graphRoot
        ingest uncommitted messages (idempotent)
-       sample P_t (Plan 02 sidecar; Plan 04 retunes knobs)
+       sample P_t
        cutTail (paired tool window; keepRecentTokens)
        prepend systemPromptAddition = pack + STATE + memory
   → model (tail + addition + tools)
@@ -70,15 +70,15 @@ dispose / reload → sidecar dispose
 - Empty pack is OK; empty compact with nonempty graph throws.
 - `ownsCompaction: true` requires a real compact implementation.
 - Subagent spawn/end: HOT_SET + identifier fork (`src/subagent.ts`); child dumps not absorbed into parent.
-- Dual-state recall-0.5 knob values are Plan 04; this phase only calls `sample`/`step` correctly.
+- Packer port calls `sample` / `step`; profile knobs live in config projection.
 
-## Plan 01 / 02 layers retained
+## Layers
 
-- Config projection, identity sanitize, doctor stubs (Plan 01).
-- Sidecar JSONL client, venv, claw_cli (Plan 02).
-- CLI, Control UI operator manage POSTs (profile/flush/compact/purge), tool-result middleware: Plan 10.
+- Config projection, identity sanitize, doctor stubs.
+- Sidecar JSONL client, venv, claw_cli.
+- CLI, Control UI operator manage POSTs (profile/flush/compact/purge), tool-result middleware.
 
-## Telemetry (Plan 07)
+## Telemetry
 
 ```text
 assemble / compact
@@ -92,9 +92,9 @@ assemble / compact
 - Doctor warns if telemetry.sqlite unwritable (`severity: warn`, not fail).
 - `tau_replay` := τ of pre-cut messages (not tail+pack).
 - Prune: 30-day age delete; size hysteresis 50MB→40MB; no VACUUM on assemble.
-- Dual impl field parity: `impl` = `sidecar` | `ts`; TsPacker count fields share `PackCountFields` (Plan 06 port owns implementation).
+- Dual impl field parity: `impl` = `sidecar` | `ts`; TsPacker count fields share `PackCountFields`.
 
-## CLI / query API (Plan 08)
+## CLI / query API
 
 ```text
 CLI / HTTP GET
@@ -107,10 +107,9 @@ doctor → telemetry-readable-stats
 - Named units: `efficiency.unit = "tau"`; never mix hosttok into `reductionRatio`.
 - Purge CLI requires `--confirm` (confirm token = session id); deletes under stateDir only.
 - POST `/manage/profile|flush|compact|purge` wired via `src/manage.ts` (confirm-gated compact/purge).
-- Control UI (Plan 09): `registerControlUiDescriptor` / `session.controls.registerControlUiDescriptor`
+- Control UI: `registerControlUiDescriptor` / `session.controls.registerControlUiDescriptor`
   with `id: "compressor"`, `surface: "tab"`, `path: /api/plugin/compressor/ui/dashboard`,
-  `requiredScopes: ["operator.read"]`. Sandboxed frame loads HTML that polls Plan 08 GET
+  `requiredScopes: ["operator.read"]`. Sandboxed frame loads HTML that polls GET
   summary / timeseries / capacity only. View-models in `src/ui/view-models.ts` (η/Δ/saturation).
-  Chart library: SVG polylines (no Recharts). Mutations enabled against manage POSTs (Plan 10).
+  Chart library: SVG polylines (no Recharts). Mutations enabled against manage POSTs.
   Never fetches `graph.json` / pack text / safetensors. No standalone HTTP listen.
-

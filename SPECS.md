@@ -6,7 +6,7 @@
 
 This document is the system stack, module map, and task DAG for a package an operator can install with `openclaw plugins install clawhub:…`, select with `plugins.slots.contextEngine`, and uninstall back to `legacy`.
 
-Performance measurement is left to implementers. See **§19 Areas for research**.
+Performance measurement is left to implementers. See **§18 Areas for research**.
 
 ---
 
@@ -43,7 +43,7 @@ Each model run receives (a) a small raw recent tail that preserves tool-call/res
 7. **Do not own memory.** Use `buildMemorySystemPromptAddition(...)`. Optional append to `memory/YYYY-MM-DD.md` is a writer, not a slot takeover.
 8. **No Pattern-1 in the default forward channel.** Vocab decode stays debug-only.
 9. **Native plugin trust.** In-process, unsandboxed, same class as lossless-claw. Keep the package small; no surprise network on assemble.
-10. **Measurement is implementer-owned.** Do not bake Cursor inject-path ratios or billed-probe figures into this spec. Record methods and fixtures under §19.
+10. **Measurement is implementer-owned.** Do not bake Cursor inject-path ratios or billed-probe figures into this spec. Record methods and fixtures under §18.
 
 ---
 
@@ -82,12 +82,12 @@ OpenClaw Gateway (Node, in-process plugins)
         │  plugins.slots.contextEngine = "compressor"
         ▼
 ┌──────────────────────────────────────────────────────────┐
-│  @soltrinox/openclaw-compressor                          │
+│  @eni6ma/compressor-oc                                   │
 │                                                          │
 │  index.ts     definePluginEntry + registerContextEngine  │
 │  engine-host  sessionKey → handle, assemble, compact     │
 │  config.ts    recall-0.5 profile, schema projection      │
-│  middleware   optional tool-result reducer (phase 2)     │
+│  middleware   optional tool-result reducer (0.3.0+)      │
 │  skill/       HOT_SET literacy SKILL.md                  │
 │                                                          │
 │           ┌─────────────┐     ┌─────────────────────┐    │
@@ -154,9 +154,9 @@ OPENCLAW/COMPRESSOR/
       handle.ts
       store.ts
     middleware/
-      tool-result.ts      # phase 2
+      tool-result.ts      # optional 0.3.0+
     ui/
-      descriptors.ts      # Control UI tab (phase 2)
+      descriptors.ts      # Control UI tab (optional)
     doctor.ts
     log.ts
   skill/
@@ -179,7 +179,7 @@ OPENCLAW/COMPRESSOR/
   docs/
     ARCHITECTURE.md
     INSTALL.md
-    RESEARCH.md           # methods, fixtures, open questions (§19)
+    RESEARCH.md           # methods, fixtures, open questions (§18)
 ```
 
 | Field | Value |
@@ -290,7 +290,7 @@ else:
   append_then_pool as today
 ```
 
-Note: fixture `entity_recall` in the Python engine is a term-hit proxy (`metrics.entity_recall`). The test gate today is `>= 0.3`. The `recall-0.5` profile is an **engineering target** for that proxy class, not a quality score. Implementers decide pass/fail in §19.
+Note: fixture `entity_recall` in the Python engine is a term-hit proxy (`metrics.entity_recall`). The test gate today is `>= 0.3`. The `recall-0.5` profile is an **engineering target** for that proxy class, not a quality score. Implementers decide pass/fail in §18.
 
 ### 7.3 Packer $\Pi$
 
@@ -414,7 +414,7 @@ Transport: subprocess, JSONL stdin/stdout, bounded timeouts, always-exit-0 with 
 
 Provisioning: on first factory init, create venv under plugin global storage, install the vendored wheel. If Python is missing, doctor fails; `engineImpl=ts` works after v1.1.
 
-### 9.9 Tool-result middleware (phase 2)
+### 9.9 Tool-result middleware (optional, 0.3.0+)
 
 Manifest: `contracts.agentToolResultMiddleware: ["openclaw"]` (add `codex` only if tested). After `exec`/`read`/`browser`, shrink huge results before they re-enter the model. Ingest gist into $G_t$. This is the durable version of OpenClaw pruning (pruning is in-memory only).
 
@@ -471,9 +471,9 @@ Cursor `beforeSubmitPrompt` could not strip native history. Here `assemble` **is
 
 ---
 
-## 12. Supercharge mechanisms (phase 2+)
+## 12. Supercharge mechanisms (0.3.0+)
 
-Ranked by leverage; not required for 0.1.0.
+Ranked by leverage; not required for 0.1.x.
 
 1. **Tool-result reducer** — `registerAgentToolResultMiddleware` for `openclaw`.
 2. **Host embedding rank** — optional hybrid $0.5\cos_{\mathrm{hash}}+0.5\cos_{\mathrm{host}}$ using `registerEmbeddingProvider`. Fail back to hash.
@@ -512,121 +512,37 @@ Port fixtures from comPREssOR `engine/tests/`: pack order, HOT_SET quotas, rank 
 `openclaw plugins inspect compressor --runtime --json` after `npm-pack:` install. Manifest schema rejects unknown config keys.
 
 **Gateway probe**  
-`scripts/probe-openclaw.sh` should exist so developers can compare `legacy` vs `compressor` on the same fixture. What to capture, how to score, and whether a given delta is “enough” is §19 — not a frozen product numeral in this spec.
+`scripts/probe-openclaw.sh` should exist so developers can compare `legacy` vs `compressor` on the same fixture. What to capture, how to score, and whether a given delta is “enough” is §18 — not a frozen product numeral in this spec.
 
 **Compat**  
 Watch OpenClaw beta tags; `pluginApi` floor must be tested before publish.
 
 ---
 
-## 15. ClawHub ship checklist
+## 15. Distribution notes
 
-1. Build `dist/` with runtime extensions.
-2. `npm pack` includes `dist/`, `openclaw.plugin.json`, vendored wheel, skill.
-3. `clawhub package validate` then `publish --dry-run` then `clawhub package publish`.
-4. `openclaw.compat.pluginApi` and `openclaw.build.openclawVersion` set.
-5. README: install, slot config, Python vs TS, doctor. No borrowed Cursor billing ratios.
-6. Semver: 0.1.0 sidecar; 0.2.0 TS engine default; 0.3.0 middleware + UI.
+Published package name is `@eni6ma/compressor-oc`. Plugin/slot id remains `compressor`. README covers install, slot config, Python vs TS, and doctor. Do not borrow Cursor billing ratios as OpenClaw product claims.
+
+**Semver intent:** 0.1.x sidecar; 0.2.0 TS engine default; 0.3.0 middleware + UI.
 
 ---
 
-## 16. Work packages and task DAG
+## 16. Release roadmap
 
-### Package 0 — Scaffold and contracts
-
-| ID | Task | Exit evidence |
-|---|---|---|
-| P0-1 | Repo + `package.json` + `openclaw.plugin.json` (`kind: context-engine`, strict schema) | local schema test or `clawhub package validate` |
-| P0-2 | `definePluginEntry` registers engine id `compressor` | inspect runtime JSON |
-| P0-3 | Config types + `recall-0.5` / `cursor-parity` | unit test defaults |
-| P0-4 | README INSTALL + RESEARCH stub | files exist |
-| P0-5 | Local link install `openclaw plugins install -l` | doctor sees plugin |
-
-### Package 1 — Sidecar protocol
-
-| ID | Task | Exit evidence |
-|---|---|---|
-| P1-1 | `claw_cli.py` commands step/sample/flush/expand_spans/health | pytest |
-| P1-2 | TS client + spawn + venv provision | sidecar-smoke.sh PASS |
-| P1-3 | Timeouts and fail-open mapping to throw | test: host throws on sidecar death |
-| P1-4 | StateDir default `~/.openclaw/context-graphs` | files appear after step |
-
-### Package 2 — Lifecycle
-
-| ID | Task | Exit evidence |
-|---|---|---|
-| P2-1 | ingest + skip heartbeat + tool gist | graph nodes in fixture |
-| P2-2 | assemble tail + pack + memory addition | returned messages length bounded |
-| P2-3 | compact typed checkpoint, no LLM mock called | compact test |
-| P2-4 | commitTurn duplicate/committed | retry test |
-| P2-5 | bootstrap from disk | restart simulation |
-| P2-6 | hostRequirements assemble-before-prompt | documented; factory info |
-
-### Package 3 — Recall-0.5 admission and readout
-
-| ID | Task | Exit evidence |
-|---|---|---|
-| P3-1 | Knobs: kMax 64, chunks 16, ema 0.5, protectKinds | config projection |
-| P3-2 | Matrix span readout in sample | spans appear in pack |
-| P3-3 | Identifier extractor | UUID/URL in HOT_SET or typed |
-| P3-4 | Retention fixtures for the profile | tests exist; thresholds in RESEARCH.md |
-| P3-5 | Tool dump does not evict OpenItem | pollution fixture |
-
-### Package 4 — Gateway probe harness
-
-| ID | Task | Exit evidence |
-|---|---|---|
-| P4-1 | probe script `legacy` vs `compressor` | runnable script + log capture |
-| P4-2 | Capture usage, `/context` sizes, compact count, overflow retries | fields documented in RESEARCH.md |
-| P4-3 | npm-pack install proof | inspect --runtime |
-
-### Package 5 — TS engine
-
-| ID | Task | Exit evidence |
-|---|---|---|
-| P5-1 | Port graph/pack/rank/chunks/metrics | golden tests vs Python |
-| P5-2 | `engineImpl=ts` default path | sidecar optional |
-| P5-3 | Pack parity on a shared fixture | implementer-defined tolerance |
-
-### Package 6 — Supercharge
-
-| ID | Task | Exit evidence |
-|---|---|---|
-| P6-1 | Tool-result middleware | contracts + reduced tool message |
-| P6-2 | Subagent HOT_SET fork | prepareSubagentSpawn test |
-| P6-3 | Optional memory note promotion | file append |
-| P6-4 | Control UI tab | descriptor registered |
-| P6-5 | Plugin CLI purge | destructive confirm |
-
-### Package 7 — ClawHub publish
-
-| ID | Task | Exit evidence |
-|---|---|---|
-| P7-1 | dist + pack includes wheel/skill | `npm pack` list |
-| P7-2 | dry-run publish | clawhub JSON |
-| P7-3 | publish + install from `clawhub:` | doctor slot |
-| P7-4 | Compat floor documented | package.json fields |
-
-**Ship gate for 0.1.0:** P0–P4 + P7. P5 is strongly recommended before calling it Gateway-native. P6 is enhancement.
-
----
-
-## 17. Phased delivery
-
-**0.1.0 Sidecar engine (MVP)**  
-Installable ClawHub plugin; `assemble` + `compact` + `commitTurn`; recall-0.5 knobs; Python sidecar; probe harness. Operators need Python 3.11+.
+**0.1.x Sidecar engine**  
+Installable plugin; `assemble` + `compact` + `commitTurn`; recall-0.5 knobs; Python sidecar; probe harness. Operators need Python 3.11+.
 
 **0.2.0 TypeScript engine**  
-Default `engineImpl=ts`. Python optional. This is the easy-install bar for hosts that will not provision a venv.
+Default `engineImpl=ts`. Python optional. Easy-install bar for hosts that will not provision a venv.
 
 **0.3.0 Supercharge**  
 Tool middleware, subagent fork, UI, memory-note writer.
 
-Do not hold 0.1.0 for the TS port if the sidecar is stable; do not market 0.1.0 as zero-dependency.
+Do not market 0.1.x as zero-dependency while the default path is the Python sidecar.
 
 ---
 
-## 18. Risks and mitigations
+## 17. Risks and mitigations
 
 | Risk | Mitigation |
 |---|---|
@@ -641,57 +557,57 @@ Do not hold 0.1.0 for the TS port if the sidecar is stable; do not market 0.1.0 
 
 ---
 
-## 19. Areas for research
+## 18. Areas for research
 
 Implementers own scoring, corpora, tokenizers, and whether a given run is a ship gate. This spec does not freeze Cursor inject-path ratios, SDK billed totals, or fixture recall as OpenClaw product claims. Use `docs/RESEARCH.md` to record methods and results.
 
-### 19.1 Retention vs volume
+### 18.1 Retention vs volume
 
 - How does fixture `entity_recall` (term-hit proxy in `metrics.py`) move when switching from the 0.3 test gate to the `recall-0.5` knobs (K_MAX, chunks per turn, EMA, span readout, HOT_SET chars)?
 - What is the corresponding change in packed $\tau(P_t)$, host-estimated tokens, and provider billed input on an OpenClaw session?
 - At what `keepRecentTokens` does the tail dominate the pack so the engine is last-N with extra metadata?
 
-### 19.2 Matrix admission and readout
+### 18.2 Matrix admission and readout
 
 - Does raising chunks-per-turn and lowering EMA actually increase distinct entities in live $C_t$ rows, or only smear them?
 - Do protected (never-merge) path/decision/identifier rows improve identifier survival in compact entries?
 - Is hashed n-gram cosine sufficient, or does a host embedding provider change rank quality enough to matter?
 - When does span sidecar readout help vs pollute the ranked family?
 
-### 19.3 Assemble substitution vs inject-only
+### 18.3 Assemble substitution vs inject-only
 
 - Cursor could not strip native history. Measure whether OpenClaw `assemble()` that **returns a reduced `messages` array** changes billed input relative to `legacy` on the same Gateway, same model, same fixture.
 - Separate the compact-call cost (LLM summarization tokens + latency) from the per-turn prompt cost.
 - Compare embedded runner vs Codex app-server, where native thread history may remain.
 
-### 19.4 Compaction quality
+### 18.4 Compaction quality
 
 - Typed HOT_SET compact entry vs OpenClaw LLM summary: identifier survival, open-item survival, decision survival, operator preference.
 - Overflow retry rate and `/compact` frequency vs `legacy`.
 - Interaction with `identifierPolicy` when `ownsCompaction: true` (policy may not apply).
 
-### 19.5 Tool dumps and pruning
+### 18.5 Tool dumps and pruning
 
 - In-memory OpenClaw pruning vs durable tool-result middleware: which reduces window occupancy without dropping the failing command and path?
 - Gist-size caps for tool sidecars vs losing the error line the next turn needs.
 
-### 19.6 Multi-agent and channels
+### 18.6 Multi-agent and channels
 
 - `sessionKey` graphs vs `agentId`-shared graphs: cross-channel continuity vs group-chat pollution.
 - Subagent fork: HOT_SET-only child context vs host `isolated` / `fork` / `lightContext` behavior.
 - Heartbeat skip: any missed durable state on heartbeat-only agents?
 
-### 19.7 Runtime cost
+### 18.7 Runtime cost
 
 - Sidecar spawn vs warm process vs in-process TS port: ingest/assemble latency, Gateway RSS, failure isolation.
 - Pack-cache hit rate when open items are unchanged.
 
-### 19.8 Operator surfaces
+### 18.8 Operator surfaces
 
 - What `/context` breakdown is sufficient to debug “the model forgot X”?
 - Control UI: which fields change operator behavior (profile, budget, purge)?
 
-### 19.9 Suggested probe harness (not a locked scoreboard)
+### 18.9 Suggested probe harness (not a locked scoreboard)
 
 `scripts/probe-openclaw.sh` should be able to run two arms (`legacy`, `compressor`) on one fixture and write a timestamped `.log.txt` with at least:
 
@@ -703,20 +619,12 @@ Implementers own scoring, corpora, tokenizers, and whether a given run is a ship
 
 Interpret the log in `docs/RESEARCH.md`. Do not copy Cursor PERFORMANCE cards into the plugin README as OpenClaw results.
 
-### 19.10 Related code and docs to study
+### 18.10 Related code and docs to study
 
 - comPREssOR: `engine/src/chat_compressor/{graph,pack,rank,handle,compress,producer,hook_cli}.py`
 - comPREssOR tests: `engine/tests/test_loop_upgrades.py` (`entity_recall >= 0.3` gate)
 - OpenClaw: context engine, compaction, memory, plugin manifest, ClawHub publishing
 - Comparable plugin: lossless-claw (`plugins.slots.contextEngine`)
-
----
-
-## 20. Immediate next work
-
-Scaffold this folder as `@soltrinox/openclaw-compressor`: `package.json`, `openclaw.plugin.json`, `definePluginEntry`, recall-0.5 config schema, local `-l` install, doctor. Do not publish. Do not change OpenClaw core.
-
-Then Package 1 (`claw_cli` + sidecar), Package 2 (assemble/compact/commit), Package 3 (admission/readout), Package 4 (probe harness), Package 7 (ClawHub when the operator is ready).
 
 ---
 

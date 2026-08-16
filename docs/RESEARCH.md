@@ -1,6 +1,6 @@
 # Research methods — Gateway / engine probe
 
-Replay definition, fixture names, and measurement protocol for Plan 05. Do not paste Cursor comPREssOR PERFORMANCE figures here or into README.
+Replay definition, fixture names, and measurement protocol for assemble probes. Do not paste Cursor comPREssOR PERFORMANCE figures here or into README.
 
 ## Probe method
 
@@ -10,13 +10,11 @@ Replay definition, fixture names, and measurement protocol for Plan 05. Do not p
 | Fixture version | 1 |
 | Fixture sha256 | `893bd5a616c7216e1f93531e87bf68dad11d8ce1138bdae52ca2902db0487d52` |
 | Frozen refs | UUID `550e8400-e29b-41d4-a716-446655440000`; path `src/ids.ts`; OpenItem `sanitize session keys` |
-| OpenClaw version / pluginApi | Gateway binary **NOT_RUN** (not on PATH); plugin `0.0.0-dev`; peer `>=2026.3.24-beta.2` |
-| Model | **NOT_RUN** (`RUN_MODEL` default false) |
+| OpenClaw version / pluginApi | Gateway binary optional; peer `>=2026.3.24-beta.2` |
+| Model | Optional (`RUN_MODEL` default false) |
 | Replay definition | **`R_full_host`** — all host messages before engine cut (legacy arm = `L_uncompacted_full` τ sum of fixture; compressor never sends full host replay to the model) |
-| Tokenizer per field | **`tau=chars4`** for packer / assemble estimates; **`hosttok=absent`** (no `runtimeSettings.limits` in this harness) |
+| Tokenizer per field | **`tau=chars4`** for packer / assemble estimates; **`hosttok=absent`** when no `runtimeSettings.limits` |
 | Mechanism | **`engine_assemble_fixture`** (`scripts/probe-assemble-fixture.ts` via `scripts/probe-openclaw.sh`) |
-| Live Gateway | **NOT_RUN** — no `openclaw` CLI; doctor/inspect stubs + Plan 01 prior doctor logs required |
-| ClawHub / npm publish | **not run** |
 
 ### Named quantities
 
@@ -45,18 +43,6 @@ Replay definition, fixture names, and measurement protocol for Plan 05. Do not p
 | compact_llm_calls | count | compressor must 0 |
 
 ## Results
-
-### Environment grades
-
-| Environment | Result | Evidence |
-|-------------|--------|----------|
-| Unit pytest | FULL | Plan 04 recall logs |
-| Sidecar smoke | FULL | Plan 02 smoke log |
-| Engine assemble fixture (default mock packer) | FULL | `probe-plan05-20260815-144510.log.txt` |
-| Engine assemble + live sidecar (`PROBE_USE_SIDECAR=1`) | FAIL path_hit | `probe-plan05-sidecar-20260815-144532.log.txt` — research, not README |
-| Live Gateway + model | NOT_RUN | no `openclaw` on PATH |
-| Docker Gateway | NOT_RUN | no compose in plugin repo |
-| Cloud | skip | not this phase |
 
 ### Two-arm table (default run — mock packer)
 
@@ -93,15 +79,11 @@ $$\eta_A = 1 - \frac{202}{591} \approx 0.658$$
 | usefulness | **harmful** — volume down AND path_hit FAIL |
 | $\eta_A$ | $1 - 438/591 \approx 0.259$ (footnote: path miss) |
 
-Next for path_hit: Plan 04 extractors / pack ranking — **out of Plan 05 file lock**. Harness correctly surfaces `WARN_THIN_PACK`.
+Next for path_hit: extractors / pack ranking. Harness correctly surfaces `WARN_THIN_PACK`.
 
 ### Retention checks
 
 Implementer-frozen: UUID, `src/ids.ts`, OpenItem phrase must appear in `join(tail) + systemPromptAddition` after last assemble.
-
-### npm pack
-
-`npm pack --dry-run` lists `openclaw.plugin.json` and `skill/`. `dist/` **PARTIAL** until Plan 11 build. No publish.
 
 ## Non-claims
 
@@ -112,7 +94,7 @@ Implementer-frozen: UUID, `src/ids.ts`, OpenItem phrase must appear in `join(tai
 
 ## recall-0.5 fixture gates (engineering)
 
-Filled by Plan 04 (in-process pytest; not Gateway probe).
+In-process pytest (not Gateway probe).
 
 | Field | Value |
 |-------|-------|
@@ -124,12 +106,12 @@ Filled by Plan 04 (in-process pytest; not Gateway probe).
 | identifier hit | **PASS** (UUID + Cloud Run URL in HOT_SET/typed/sample) |
 | OpenItem-after-dump | **PASS** (`ids.ts` / OpenItem remains in HOT_SET) |
 | protect-row eviction | When all adjacent pairs blocked: evict oldest unprotected, then oldest non-identifier protected; identifier rows last. |
-| notes | Gateway two-arm path_hit FAIL on live sidecar is a separate measurement from Plan 04 in-process gates. |
+| notes | Gateway two-arm path_hit FAIL on live sidecar is a separate measurement from in-process gates. |
 
 ## Fixtures
 
-- `test/fixtures/probe-session.jsonl` (Plan 05)
-- `engine/tests/test_recall_profile.py` / `test_pollution_tools.py` (Plan 04)
+- `test/fixtures/probe-session.jsonl`
+- `engine/tests/test_recall_profile.py` / `test_pollution_tools.py`
 
 ## Re-run
 
@@ -143,4 +125,4 @@ PROBE_USE_SIDECAR=1 ./scripts/probe-openclaw.sh
 
 ## Open questions
 
-See SPECS §19. Live Gateway inject path remains a host-seam when `openclaw` is installed. Codex native-history scope not exercised (`SCOPE_EMBEDDED_ONLY` N/A).
+See SPECS §18. Live Gateway inject path remains a host-seam when `openclaw` is installed. Codex native-history scope not exercised (`SCOPE_EMBEDDED_ONLY` N/A).

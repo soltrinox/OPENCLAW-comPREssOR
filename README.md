@@ -8,9 +8,9 @@ GitHub: [soltrinox/OPENCLAW-comPREssOR](https://github.com/soltrinox/OPENCLAW-co
 
 ## What it is
 
-This package will register a context engine that packs local dual-state memory into `assemble()`. **In this version it only registers.** It does not pack yet. `assemble` / `compact` / `commitTurn` throw `EngineNotReadyError` so the Gateway can quarantine to `legacy` instead of silently passing the full transcript through.
+This package registers a context engine that packs local dual-state memory into `assemble()`. On hard engine failure it throws so the Gateway can quarantine to `legacy` instead of silently passing the full transcript through.
 
-## What the model will see (once Plan 03 lands)
+## What the model will see
 
 A small raw recent tail that keeps tool-call/result pairing, plus a typed pack (HOT_SET, facts, ranked spans). The model does not receive sqlite, safetensors, or graph JSON.
 
@@ -48,7 +48,7 @@ Set the exclusive slot (JSON5):
 }
 ```
 
-Restart the Gateway. `openclaw doctor` should see the plugin. Until the packer exists, a live chat may quarantine; that is fail-open and honest.
+Restart the Gateway. `openclaw doctor` should see the plugin. On packer failure a live chat may quarantine; that is fail-open and honest.
 
 ## Config
 
@@ -56,15 +56,15 @@ Default profile is `recall-0.5` (SPECS §6). `cursor-parity` is the A/B arm with
 
 ## Fail-open / uninstall
 
-Uninstall restores `legacy`. OpenClaw resets `plugins.slots.contextEngine` when the selected plugin is removed. Heartbeats are not ingested (once ingest exists).
+Uninstall restores `legacy`. OpenClaw resets `plugins.slots.contextEngine` when the selected plugin is removed. Heartbeats are not ingested.
 
-## Python (0.1.0)
+## Python
 
-The 0.1.0 sidecar path needs Python 3.11+. This scaffold only checks that an interpreter is discoverable. A venv is Plan 02. `engineImpl=ts` is not implemented until 0.2.0.
+The default `engineImpl=sidecar` path needs Python 3.11+. Set `engineImpl=ts` when you want the TypeScript packer without a Python interpreter.
 
 ## State directory
 
-Default `stateDir` is `~/.openclaw/context-graphs` (not `~/.cursor/context-graphs` unless the operator opts in). Graph roots are sanitized session keys. Files are not written in this phase except a doctor writability probe.
+Default `stateDir` is `~/.openclaw/context-graphs` (not `~/.cursor/context-graphs` unless the operator opts in). Graph roots are sanitized session keys.
 
 ## Exclusive slot vs lossless-claw
 

@@ -4,9 +4,9 @@ This skill does not assemble context. The Gateway context engine owns `assemble(
 
 ## Mechanism
 
-The compressor plugin will pack local dual-state memory (graph + bounded matrix) into a budgeted prefix. Until Plan 03, the engine is not ready: `assemble` throws and the host should quarantine to `legacy`.
+The compressor plugin packs local dual-state memory (graph + bounded matrix) into a budgeted prefix. On hard engine failure, `assemble` throws and the host should quarantine to `legacy`.
 
-When packing exists, the model sees a small recent tail plus a pack ordered HOT_SET → typed facts → ranked spans.
+When packing succeeds, the model sees a small recent tail plus a pack ordered HOT_SET → typed facts → ranked spans.
 
 ## Outcome
 
