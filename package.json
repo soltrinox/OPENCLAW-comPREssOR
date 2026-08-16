@@ -1,7 +1,7 @@
 {
   "name": "@soltrinox/openclaw-compressor",
   "version": "0.1.3",
-  "description": "comPREssOR: OpenClaw context-engine plugin that packs local dual-state memory into assemble().",
+  "description": "comPREssOR: OpenClaw context-engine; dual-state Forward Pack (graph+matrix) via assemble().",
   "type": "module",
   "license": "MIT",
   "repository": {

@@ -1,5 +1,7 @@
 # The Dual-State Memory Model: A Developer's Guide to Graph vs. Matrix Persistence in OpenClaw
 
+**Audience:** Theory for OpenClaw plugin operators and developers. Measurement protocol and probe logs live in [RESEARCH.md](RESEARCH.md). Do not treat Cursor inject-path PERFORMANCE cards as OpenClaw product results.
+
 ## Executive Summary & OpenClaw Architectural Value
 
 Autonomous agent frameworks like **OpenClaw** rely on long-running loops, terminal interactions, sub-agent orchestrations, and tool executions to solve non-trivial software engineering tasks. As an OpenClaw agent executes across dozens or hundreds of sequential turns, it encounters a performance bottleneck: **context saturation**.
@@ -13,13 +15,15 @@ Standard agent architectures handle context by replaying full transcript histori
 The **Dual-State Memory Model** replaces brute-force replay with a local, deterministic, two-track memory engine tailored for OpenClaw agents:
 
 1. **Memory Track 1 — Symbolic Graph ($G_{t}$):** A structured, deterministic graph storing human-readable entities (decisions, active tasks, file paths, and facts) under a strict quota model.
-2. **Memory Track 2 — Matrix Memory ($C_{t}$):** An ultra-lightweight, zero-dependency numeric tensor ($32 \times 256$) that uses feature-hashed $n$-grams and exponential moving average (EMA) pooling to rank historical transcript spans locally, without GPU overhead or model downloads.
+2. **Memory Track 2 — Matrix Memory ($C_{t}$):** An ultra-lightweight, zero-dependency numeric tensor ($K{\times}d$, profile-dependent $K_{\max}$) that uses feature-hashed $n$-grams and exponential moving average (EMA) pooling to rank historical transcript spans locally, without GPU overhead or model downloads.
 
-By synthesizing these two tracks into a token-budgeted **Forward Pack ($P_{t}$)**, OpenClaw developers achieve:
+By synthesizing these two tracks into a token-budgeted **Forward Pack ($P_{t}$)**, operators get a bounded, labeled context surface instead of unbounded transcript replay:
 
-- **83.8% reduction** in forwarded tokens compared with raw history replay.
-- **6× extension** in session longevity under fixed context limits.
-- **Deterministic guardrails:** Architectural constraints and file paths remain intact under severe token starvation.
+- **Budgeted projection:** $\tau(P_{t})\le B_{t}$ with HOT_SET → typed lines → ranked chunks under pressure.
+- **Typed continuity:** Paths, open items, and decisions stay quota-backed in the pack when extractors see them.
+- **Deterministic guardrails:** Under severe token starvation, ranked spans drop first; architectural constraints and file paths are preferred.
+
+Absolute reduction percentages and longevity multipliers are **not** shipped product claims. Measure on your Gateway with the probe protocol in [RESEARCH.md](RESEARCH.md).
 
 ---
 
@@ -501,27 +505,29 @@ This degradation order keeps architectural constraints, target file paths, and a
 
 ---
 
-## 5. Measured Impact: Efficiency Scorecard & Benchmarks
+## 5. Illustrative scorecard (non-shipped)
 
-To quantify efficiency gains, the Dual-State Memory Model was evaluated against a 199-prompt agent injection test suite (`eval-corpus-v4`).
+**Status:** Non-shipped illustrative material. Do **not** treat the following layout as OpenClaw product results. Cursor inject-path PERFORMANCE cards and IDE corpus arithmetic are a different host path; they must not be copied into ClawHub or README as this plugin’s outcomes.
 
-| Metric | Raw Replay | Dual-State Pack | Delta |
-| --- | --- | --- | --- |
-| Avg prompt tokens per turn | 14,280 | 2,310 | −83.8% |
-| Max session longevity (turns) | 42 | 252 | +500% |
-| Forwarded context ratio | 100.0% | 16.2% | −83.8% |
-| Token efficiency scaling | 1.0× | 6.19× | +519% |
-| Hard constraint retention | 62.4% | 99.8% | +37.4% |
-| Mean processing latency (TTFT) | 1.84s | 0.21s | −88.6% |
+Operators measure on their Gateway using the probe protocol in [RESEARCH.md](RESEARCH.md): declare a replay definition, log assemble $\tau$ / host tokens, compact LLM call count, identifier/path retention, and quarantine events. Publish methods and your own logs — not borrowed percentages.
+
+### What a scorecard may track (empty until you probe)
+
+| Metric family | Examples (fill from your probe) |
+| --- | --- |
+| Volume | $\tau(P_t)$, $\tau(A_t)$, host `estimatedTokens`, provider billed input (labeled separately) |
+| Reduction | $\eta$ / $\eta_A$ under a named replay definition and named tokenizer |
+| Retention | entity_recall / path / OpenItem / identifier hit rates on a frozen reference set |
+| Lifecycle | compact LLM calls (expect 0 while healthy), overflow retries, quarantine events |
 
 ### The Honesty Ledger
 
-To keep benchmarks objective, developer integrations must account for four operational considerations:
+Developer integrations must account for four operational considerations:
 
-1. **Character estimator approximation ($\tau$):** Token calculations use a character-ratio estimate $\tau(x) = |x|/4$. Tokenizers with higher bit-density (e.g. tiktoken `cl100k_base`) can show a $\pm 4.2\%$ divergence.
-2. **Inject-path boundaries:** Performance ratios apply specifically to forward memory context prompts. Standard system instruction headers and raw tool-output execution blocks remain bound by base LLM window limits.
-3. **Native history coexistence:** OpenClaw retains raw native history on a local log channel for auditing. Dual-state forward packing runs in parallel with raw execution traces.
-4. **Text-only model boundary:** The language model processes text strictly inside $P_{t}$. Local SQLite graph states and matrix tensor floating-point arrays must be projected into text to influence agent decisions.
+1. **Character estimator approximation ($\tau$):** Packer internals use a character-ratio estimate (for nonempty $x$, $\tau(x)=\max(1,\lfloor(|x|+3)/4\rfloor)$). Do not convert $\tau$ to dollars or mix $\tau$ with host/provider tokenizers in one headline.
+2. **Inject-path boundaries:** Cursor-style inject ratios apply to additional_context inject paths, not to OpenClaw `assemble()` substitution. Do not import those numerals as Gateway product claims.
+3. **Native history coexistence:** OpenClaw may retain raw native history for auditing; dual-state packing controls the engine-assembled view. Codex/native history ownership can still affect billed input.
+4. **Text-only model boundary:** The language model processes text inside the assembled prompt. Local SQLite graph states and matrix tensors must be projected into text to influence agent decisions.
 
 ---
 

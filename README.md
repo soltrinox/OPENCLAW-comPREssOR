@@ -1,90 +1,119 @@
-# comPREssOR (`@soltrinox/openclaw-compressor`)
+# comPREssOR (`@soltrinox/openclaw-compressor@0.1.3`)
 
-OpenClaw **context-engine** plugin (**comPREssOR**). It occupies the exclusive slot `plugins.slots.contextEngine` with engine id `compressor`.
+OpenClaw **context-engine** plugin. Slot/id `compressor`. npm package **`@soltrinox/openclaw-compressor@0.1.3`** (ClawHub owner scope `soltrinox`).
 
-npm package: **`@soltrinox/openclaw-compressor`** (scope `soltrinox`, matches ClawHub owner). Plugin/slot id remains `compressor`.
+## Mechanism / outcome / scope
 
-GitHub: [soltrinox/OPENCLAW-comPREssOR](https://github.com/soltrinox/OPENCLAW-comPREssOR).
+**Mechanism:** A local symbolic graph $G_t$ plus a bounded gist matrix $C_t$. On each run, `assemble()` returns a small recent message tail (tool call/result pairs kept intact) plus a budgeted Forward Pack $P_t$ ordered HOT_SET → typed lines → ranked spans. `compact()` writes a typed checkpoint without calling an LLM.
 
-## What it is
+**Outcome:** Long Gateway sessions can stay inside a token budget with labeled continuity for paths, open items, and identifiers. Uninstall restores the `legacy` slot.
 
-This package registers a context engine that packs local dual-state memory into `assemble()`. On hard engine failure it throws so the Gateway can quarantine to `legacy` instead of silently passing the full transcript through.
+**Scope:** Opt-in exclusive context engine. Not memory-core. Not RAG. Not a quality guarantee. Fail-open: hard packer failure throws so the Gateway quarantines to `legacy`. Default `engineImpl=sidecar` requires Python 3.11+; optional `engineImpl=ts` runs without Python. The model receives text only — no SQLite, safetensors, or graph JSON.
 
-## What the model will see
+## How it works with OpenClaw
 
-A small raw recent tail that keeps tool-call/result pairing, plus a typed pack (HOT_SET, facts, ranked spans). The model does not receive sqlite, safetensors, or graph JSON.
+Exclusive slot `plugins.slots.contextEngine = "compressor"`. Turn path: ingest → assemble (tail + pack) → model → commitTurn; overflow or `/compact` → typed compact. Assemble throw → quarantine `legacy`. Text-only model boundary.
+
+Details: [docs/OPENCLAW.md](docs/OPENCLAW.md).
+
+## Dual-state (one screen)
+
+$G_t$ (graph) + $C_t$ (matrix) → $P_t$ (Forward Pack). HOT_SET uses a 40/40/20 open-item / decision-fact / path split; under budget pressure, ranked chunks drop first.
+
+![Runtime sequence: ingest → assemble → model → commitTurn](docs/figures/OC-05-runtime-sequence.png)
+
+Secondary: [fail-open quarantine](docs/figures/OC-09-fail-open.png) · [typed compact](docs/figures/OC-08-typed-compact.png) · [model boundary](docs/figures/OC-10-model-boundary.png).
+
+## What the model sees
+
+```text
+[STATE] agent_id=claw-01 turn=42 state_id=0x9f82a1c
+[HOT_SET]
+* OpenItem: Resolve null pointer in JWT parse routine
+* Active Topic: Authentication Middleware Migration
+[TYPED]
+* Fact: Server deployment target must support TLS v1.3
+* Decision: Store session tokens in Redis cluster
+* Path: /src/middleware/auth.ts
+[RANKED]
+> Turn 38 log: Redis connection pool initialized on port 6379...
+> Turn 40 terminal output: test auth_test.go passed 14 checks...
+```
 
 ## Install
 
-From npm (public scoped package):
+ClawHub (preferred on Gateway hosts):
 
 ```bash
-npm install @soltrinox/openclaw-compressor
+openclaw plugins install clawhub:@soltrinox/openclaw-compressor
 ```
 
-Or from ClawHub (preferred for Gateway hosts):
-
-```bash
-# after ClawHub publish
-# openclaw plugins install @soltrinox/openclaw-compressor
-```
-
-Local developer link:
-
-```bash
-cd OPENCLAW/COMPRESSOR
-npm install
-openclaw plugins install -l .
-openclaw plugins inspect compressor --runtime --json
-```
-
-For operator install, slot config, and CLI details, see [docs/INSTALL.md](docs/INSTALL.md).
-
-## Slot
-
-Set the exclusive slot (JSON5):
+Slot config (JSON5), then restart Gateway:
 
 ```json5
 {
   plugins: {
     slots: { contextEngine: "compressor" },
     entries: {
-      compressor: { enabled: true, config: { profile: "recall-0.5" } },
+      compressor: {
+        enabled: true,
+        config: { profile: "recall-0.5" },
+      },
     },
   },
 }
 ```
 
-Restart the Gateway. `openclaw doctor` should see the plugin. On packer failure a live chat may quarantine; that is fail-open and honest.
+Verify:
+
+```bash
+openclaw plugins inspect compressor --runtime --json
+openclaw compressor doctor
+```
+
+Local developer link (secondary):
+
+```bash
+cd OPENCLAW/COMPRESSOR
+npm install && npm run build
+openclaw plugins install -l .
+```
+
+Operator install detail: [docs/INSTALL.md](docs/INSTALL.md).
 
 ## Config
 
-Default profile is `recall-0.5` (SPECS §6). `cursor-parity` is the A/B arm with smaller $K_{\max}$, HOT_SET, and budget. Unknown keys are rejected (`additionalProperties: false`). Overlay of profile-owned knobs is allowed with a doctor warning.
+| Knob | Notes |
+| --- | --- |
+| `profile: "recall-0.5"` | Default OpenClaw retention-oriented arm (larger $K_{\max}$, HOT_SET, budget). |
+| `profile: "cursor-parity"` | A/B arm aligned with IDE packer defaults. |
+| `engineImpl` | `sidecar` (default, Python) or `ts` (no Python). |
+| `stateDir` | Default `~/.openclaw/context-graphs`. |
 
-## Fail-open / uninstall
+Unknown keys are rejected (`additionalProperties: false`). Overlay of profile-owned knobs is allowed with a doctor warning.
 
-Uninstall restores `legacy`. OpenClaw resets `plugins.slots.contextEngine` when the selected plugin is removed. Heartbeats are not ingested.
+## Security
 
-## Python
+In-process plugin = Gateway trust boundary. No assemble-time network. No API keys in plugin config. State is local under `stateDir`. Uninstall restores the slot to `legacy`; it does not purge graph files.
 
-The default `engineImpl=sidecar` path needs Python 3.11+. Set `engineImpl=ts` when you want the TypeScript packer without a Python interpreter.
+## When not to use
 
-## State directory
+- Short sessions already under the context budget.
+- Tasks that need exact full-file quotation (attach the file).
+- Hosts without Python until you set `engineImpl=ts`.
+- Operators who will not inspect `/context` when recall fails.
 
-Default `stateDir` is `~/.openclaw/context-graphs` (not `~/.cursor/context-graphs` unless the operator opts in). Graph roots are sanitized session keys.
+## vs lossless-claw
 
-## Exclusive slot vs lossless-claw
+Exclusive slot: pick one context engine. This plugin uses a query-conditioned typed budgeted pack. lossless-claw uses a different policy (DAG + originals). Sharing a graph idea is not a uniqueness claim.
 
-Only one context engine is active. Installing this plugin and lossless-claw and expecting merged behavior is unsupported. Pick one slot value.
+## Docs
 
-## Links
-
-- [SPECS.md](SPECS.md)
-- [001.md](001.md)
-- [docs/INSTALL.md](docs/INSTALL.md)
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- [docs/RESEARCH.md](docs/RESEARCH.md) (methods stub; no product claims)
-- [GitHub](https://github.com/soltrinox/OPENCLAW-comPREssOR)
+- [docs/OPENCLAW.md](docs/OPENCLAW.md) — Gateway integration
+- [docs/INSTALL.md](docs/INSTALL.md) — CLI / HTTP / doctor
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — host callbacks and packer port
+- [docs/value.md](docs/value.md) — dual-state theory
+- [docs/RESEARCH.md](docs/RESEARCH.md) — measurement protocol (no product claims)
 
 ## License
 
