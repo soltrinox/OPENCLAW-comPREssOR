@@ -32,15 +32,21 @@ openclaw plugins inspect compressor --runtime --json
 
 ## Publish (eni6ma npm org)
 
-Requires `NPM_TOKEN` (automation/access token with publish rights on `eni6ma`). Never commit tokens; `.npmrc` is gitignored.
+Requires `NPM_TOKEN`: a **Granular Access Token** from [npm Access Tokens](https://www.npmjs.com/settings/~/tokens) with:
+
+- Type: **Automation**
+- Packages: org **`eni6ma`** — **Read and write**
+- **Bypass 2FA for automation** enabled (classic tokens / tokens without bypass get `E403` on publish)
+
+Never commit tokens; `.npmrc` is gitignored. Do not reuse tokens pasted into chat.
 
 ```bash
-export NPM_TOKEN=…   # from npmjs.org → Access Tokens
+export NPM_TOKEN=…   # granular Automation token (eni6ma R/W + Bypass 2FA)
 npm run release:publish
 # or: bash scripts/release-publish.sh
 ```
 
-The script runs `typecheck` → `build` → `pack`, then `npm publish --access public`, then `npm view @eni6ma/compressor-oc name version repository.url`.
+The script runs `typecheck` → `build` → `pack`, then `npm publish --access public`, then `npm view @eni6ma/compressor-oc name version repository.url`. On `E403` / 2FA errors it prints the same token remediation.
 
 ## Slot
 

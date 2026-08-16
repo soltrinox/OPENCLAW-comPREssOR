@@ -9,7 +9,25 @@ cd "$ROOT"
 EXPECTED_NAME="@eni6ma/compressor-oc"
 FIRST_PUBLISH_VERSION="0.1.0"
 
-: "${NPM_TOKEN:?NPM_TOKEN must be set (npm automation/access token for eni6ma org)}"
+: "${NPM_TOKEN:?NPM_TOKEN must be set (npm granular access token for eni6ma org; see README Publish)}"
+
+print_e403_remediation() {
+  cat >&2 <<'EOF'
+
+[FAIL] npm publish returned 403 (2FA / token policy).
+
+Create a Granular Access Token on https://www.npmjs.com/settings/~/tokens
+  - Type: Automation
+  - Packages: org eni6ma — Read and write
+  - Bypass 2FA for automation: enabled (required for CI/script publish)
+
+Then:
+  export NPM_TOKEN=<new-granular-token>
+  npm run release:publish
+
+Do not reuse classic tokens or tokens pasted into chat. Never commit tokens.
+EOF
+}
 
 PKG_NAME="$(node -p 'require("./package.json").name')"
 if [[ "$PKG_NAME" != "$EXPECTED_NAME" ]]; then
@@ -59,7 +77,20 @@ npm run build
 npm run pack
 
 echo "[publish] npm publish --access public"
-npm publish --access public
+PUBLISH_LOG="$(mktemp "${TMPDIR:-/tmp}/eni6ma-npm-publish.XXXXXX")"
+set +e
+npm publish --access public >"$PUBLISH_LOG" 2>&1
+PUBLISH_RC=$?
+set -e
+cat "$PUBLISH_LOG"
+if [[ "$PUBLISH_RC" -ne 0 ]]; then
+  if grep -Eiq 'E403|403 Forbidden|Two-factor authentication|granular access token|bypass 2fa' "$PUBLISH_LOG"; then
+    print_e403_remediation
+  fi
+  rm -f "$PUBLISH_LOG"
+  exit "$PUBLISH_RC"
+fi
+rm -f "$PUBLISH_LOG"
 
 echo "[publish] verify: npm view"
 npm view "$EXPECTED_NAME" name version repository.url

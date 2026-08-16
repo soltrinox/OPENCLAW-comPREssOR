@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/soltrinox/OPENCLAW-comPREssOR.git"
+    "url": "git+https://github.com/soltrinox/OPENCLAW-comPREssOR.git"
   },
   "publishConfig": {
     "access": "public"

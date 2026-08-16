@@ -37,10 +37,10 @@ Gateway install/inspect is optional: missing CLI or `SKIP_GATEWAY=1` → `[NOT_R
 
 ## npm publish (eni6ma org)
 
-Live npm publish is separate from predeploy. Requires `NPM_TOKEN` and runs the build gate then `npm publish --access public`:
+Live npm publish is separate from predeploy. Requires `NPM_TOKEN` (Granular Access Token: Automation type, org `eni6ma` packages read/write, **Bypass 2FA for automation** enabled). Classic tokens fail with `E403`. Never commit tokens.
 
 ```bash
-export NPM_TOKEN=…
+export NPM_TOKEN=…   # https://www.npmjs.com/settings/~/tokens
 npm run release:publish
 ```
 
