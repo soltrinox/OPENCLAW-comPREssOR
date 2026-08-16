@@ -82,7 +82,7 @@ OpenClaw Gateway (Node, in-process plugins)
         │  plugins.slots.contextEngine = "compressor"
         ▼
 ┌──────────────────────────────────────────────────────────┐
-│  @eni6ma/compressor-oc                                   │
+│  @soltrinox/openclaw-compressor                          │
 │                                                          │
 │  index.ts     definePluginEntry + registerContextEngine  │
 │  engine-host  sessionKey → handle, assemble, compact     │
@@ -521,7 +521,7 @@ Watch OpenClaw beta tags; `pluginApi` floor must be tested before publish.
 
 ## 15. Distribution notes
 
-Published package name is `@eni6ma/compressor-oc`. Plugin/slot id remains `compressor`. README covers install, slot config, Python vs TS, and doctor. Do not borrow Cursor billing ratios as OpenClaw product claims.
+Published package name is `@soltrinox/openclaw-compressor`. Plugin/slot id remains `compressor`. README covers install, slot config, Python vs TS, and doctor (`openclaw compressor doctor`). Do not borrow Cursor billing ratios as OpenClaw product claims.
 
 **Semver intent:** 0.1.x sidecar; 0.2.0 TS engine default; 0.3.0 middleware + UI.
 

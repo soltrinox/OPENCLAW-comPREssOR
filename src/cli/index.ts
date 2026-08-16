@@ -1,5 +1,5 @@
 /**
- * CLI: openclaw compressor stats | status | purge (stub) | export
+ * CLI: openclaw compressor stats | status | purge | export | doctor
  * Handlers are in-process; no standalone HTTP server.
  */
 
@@ -12,6 +12,7 @@ import {
   type SummaryDTO,
 } from "../api.ts";
 import { expandStateDir, type CompressorConfig, validateConfig } from "../config.ts";
+import { runDoctorChecks, type DoctorFinding } from "../doctor.ts";
 import { sanitize } from "../ids.ts";
 import { createPacker, type PackerPort } from "../packer-port.ts";
 import { TelemetryStore } from "../telemetry/store.ts";
@@ -295,6 +296,42 @@ export async function runPurgeCommand(
   return 0;
 }
 
+function formatDoctorFindings(findings: DoctorFinding[], json?: boolean): string {
+  if (json) return JSON.stringify(findings, null, 2);
+  return findings.map((f) => `[${f.severity}] ${f.id}: ${f.message}`).join("\n");
+}
+
+/**
+ * Run compressor doctor checks via CLI.
+ * Gateway `openclaw doctor` plugin checks are not registered on host 2026.7.1-2;
+ * operators use this subcommand instead.
+ */
+export async function runDoctorCommand(
+  args: { session?: string; json?: boolean } = {},
+  deps: CliDeps = {},
+): Promise<number> {
+  const io = deps.io ?? defaultIo;
+  const config = deps.config ?? validateConfig({}).resolved;
+  let session: string | undefined;
+  if (args.session) {
+    const bad = rejectUnsafeSessionId(args.session);
+    if (bad) {
+      io.stderr(`invalid session: ${bad}`);
+      return 2;
+    }
+    session = sanitize(args.session);
+  }
+  const findings = runDoctorChecks({
+    slot: "compressor",
+    pluginEnabled: true,
+    config,
+    sessionKey: session,
+  });
+  io.stdout(formatDoctorFindings(findings, args.json));
+  if (findings.some((f) => f.severity === "fail")) return 1;
+  return 0;
+}
+
 export async function runExportCommand(
   args: { session?: string; format?: "csv" | "json"; out?: string },
   deps: CliDeps = {},
@@ -359,7 +396,7 @@ export async function runExportCommand(
   }
 }
 
-export type CliCommand = "stats" | "status" | "purge" | "export";
+export type CliCommand = "stats" | "status" | "purge" | "export" | "doctor";
 
 export function parseCompressorArgs(argv: string[]): {
   command?: CliCommand;
@@ -372,7 +409,13 @@ export function parseCompressorArgs(argv: string[]): {
 } {
   const out: ReturnType<typeof parseCompressorArgs> = {};
   const cmd = argv[0];
-  if (cmd === "stats" || cmd === "status" || cmd === "purge" || cmd === "export") {
+  if (
+    cmd === "stats" ||
+    cmd === "status" ||
+    cmd === "purge" ||
+    cmd === "export" ||
+    cmd === "doctor"
+  ) {
     out.command = cmd;
   }
   for (let i = 1; i < argv.length; i++) {
@@ -393,7 +436,7 @@ export async function runCompressorCli(argv: string[], deps: CliDeps = {}): Prom
   const io = deps.io ?? defaultIo;
   const parsed = parseCompressorArgs(argv);
   if (!parsed.command) {
-    io.stderr("usage: openclaw compressor <stats|status|purge|export> ...");
+    io.stderr("usage: openclaw compressor <stats|status|purge|export|doctor> ...");
     return 2;
   }
   switch (parsed.command) {
@@ -411,6 +454,8 @@ export async function runCompressorCli(argv: string[], deps: CliDeps = {}): Prom
         { session: parsed.session, format: parsed.format, out: parsed.out },
         deps,
       );
+    case "doctor":
+      return runDoctorCommand({ session: parsed.session, json: parsed.json }, deps);
     default:
       return 2;
   }
@@ -430,7 +475,7 @@ export function registerCompressorCli(
   if (typeof api.registerCli !== "function") return;
   api.registerCli({
     name: "compressor",
-    description: "Compressor stats/status/purge (plugin namespace; unit=tau)",
+    description: "Compressor stats/status/purge/doctor (plugin namespace; unit=tau)",
     async handler(ctx) {
       const deps = depsFactory?.() ?? {};
       return runCompressorCli(ctx.args, deps);

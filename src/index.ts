@@ -1,7 +1,6 @@
 import { definePluginEntry, type EngineFactoryCtx, type OpenClawPluginApi } from "./runtime-api.ts";
 import { loadManifestConfigSchema, validateConfig, type CompressorConfig } from "./config.ts";
 import { createEngineHost, type EngineHost } from "./engine.ts";
-import { registerDoctorChecks } from "./doctor.ts";
 import { logResolvedConfig } from "./log.ts";
 import {
   handleCapacity,
@@ -279,11 +278,6 @@ export function register(api: OpenClawPluginApi): void {
     onShutdown: disposeAll,
     dispose: disposeAll,
   });
-  registerDoctorChecks(api, () => ({
-    slot: "compressor",
-    pluginEnabled: true,
-    config: lastConfig,
-  }));
   registerCompressorCli(api, () => ({ config: lastConfig }));
   registerHttpAdapters(api);
   registerCompressorControlUi(api);

@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
-# Publish @eni6ma/compressor-oc to the public npm registry (eni6ma org).
+# Publish @soltrinox/openclaw-compressor to the public npm registry (soltrinox scope).
 # Requires NPM_TOKEN in the environment. Never embeds or commits tokens.
+# Do not run without operator GO for live registry write.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-EXPECTED_NAME="@eni6ma/compressor-oc"
+EXPECTED_NAME="@soltrinox/openclaw-compressor"
 FIRST_PUBLISH_VERSION="0.1.0"
 
-: "${NPM_TOKEN:?NPM_TOKEN must be set (npm granular access token for eni6ma org; see README Publish)}"
+: "${NPM_TOKEN:?NPM_TOKEN must be set (npm granular access token for soltrinox scope; see README Publish)}"
 
 print_e403_remediation() {
   cat >&2 <<'EOF'
@@ -18,7 +19,7 @@ print_e403_remediation() {
 
 Create a Granular Access Token on https://www.npmjs.com/settings/~/tokens
   - Type: Automation
-  - Packages: org eni6ma — Read and write
+  - Packages: scope soltrinox — Read and write
   - Bypass 2FA for automation: enabled (required for CI/script publish)
 
 Then:
@@ -51,7 +52,7 @@ if [[ -f "$ROOT/.npmrc" ]]; then
   NPMRC_PATH="$ROOT/.npmrc"
   echo "[publish] using existing local .npmrc (gitignored)"
 else
-  NPMRC_PATH="$(mktemp "${TMPDIR:-/tmp}/eni6ma-npmrc.XXXXXX")"
+  NPMRC_PATH="$(mktemp "${TMPDIR:-/tmp}/soltrinox-npmrc.XXXXXX")"
   CLEANUP_NPMRC=1
   umask 077
   cat >"$NPMRC_PATH" <<EOF
@@ -77,7 +78,7 @@ npm run build
 npm run pack
 
 echo "[publish] npm publish --access public"
-PUBLISH_LOG="$(mktemp "${TMPDIR:-/tmp}/eni6ma-npm-publish.XXXXXX")"
+PUBLISH_LOG="$(mktemp "${TMPDIR:-/tmp}/soltrinox-npm-publish.XXXXXX")"
 set +e
 npm publish --access public >"$PUBLISH_LOG" 2>&1
 PUBLISH_RC=$?

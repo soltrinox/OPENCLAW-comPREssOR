@@ -16,6 +16,7 @@ import {
 import {
   formatStatsTable,
   runCompressorCli,
+  runDoctorCommand,
   runPurgeCommand,
   runStatsCommand,
   runStatusCommand,
@@ -334,5 +335,38 @@ describe("doctor + register (Plan 08)", () => {
     expect(code).toBe(0);
     expect(JSON.parse(chunks.join("")).data.efficiency.unit).toBe("tau");
     store.close();
+  });
+
+  it("openclaw compressor doctor prints findings via registerCli path", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "oc-cli-doc-"));
+    const chunks: string[] = [];
+    const code = await runCompressorCli(["doctor", "--json"], {
+      config: { ...RECALL_05_DEFAULTS, stateDir: dir, engineImpl: "ts" },
+      io: { stdout: (s) => chunks.push(s), stderr: () => {} },
+    });
+    expect(code).toBe(0);
+    const findings = JSON.parse(chunks.join("")) as Array<{ id: string; severity: string }>;
+    expect(findings.some((f) => f.id === "engine-impl-ts" && f.severity === "pass")).toBe(true);
+    expect(findings.some((f) => f.id === "telemetry-readable-stats")).toBe(true);
+  });
+
+  it("runDoctorCommand exits 1 when sidecar venv is missing", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "oc-cli-doc-fail-"));
+    const chunks: string[] = [];
+    const code = await runDoctorCommand(
+      { json: true },
+      {
+        config: {
+          ...RECALL_05_DEFAULTS,
+          stateDir: dir,
+          engineImpl: "sidecar",
+          pythonPath: "/nonexistent/python-xyz",
+        },
+        io: { stdout: (s) => chunks.push(s), stderr: () => {} },
+      },
+    );
+    expect(code).toBe(1);
+    const findings = JSON.parse(chunks.join("")) as Array<{ id: string; severity: string }>;
+    expect(findings.some((f) => f.severity === "fail")).toBe(true);
   });
 });

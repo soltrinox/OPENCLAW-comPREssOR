@@ -49,10 +49,15 @@ find engine -type d \( -name '__pycache__' -o -name '.pytest_cache' \) -print0 2
 find engine -type d -name 'chat_compressor.egg-info' -print0 2>/dev/null \
   | xargs -0 rm -rf 2>/dev/null || true
 
-# Scoped names (@eni6ma/compressor-oc) pack as eni6ma-compressor-oc-<ver>.tgz
+# Scoped names (@soltrinox/openclaw-compressor) pack as soltrinox-openclaw-compressor-<ver>.tgz
 PKG_NAME="$(node -p 'require("./package.json").name.replace(/^@/, "").replace(/\//g, "-")')"
 PKG_VERSION="$(node -p 'require("./package.json").version')"
 EXPECTED_TGZ="${PKG_NAME}-${PKG_VERSION}.tgz"
+EXPECTED_PREFIX="soltrinox-openclaw-compressor"
+if [[ "$PKG_NAME" != "$EXPECTED_PREFIX" ]]; then
+  echo "[FAIL] package name prefix is '$PKG_NAME'; expected '$EXPECTED_PREFIX'" >&2
+  exit 1
+fi
 rm -f "${PKG_NAME}"-*.tgz
 npm pack
 
@@ -64,10 +69,10 @@ fi
 test -n "${TGZ:-}"
 test -f "$TGZ"
 echo "[PASS] tarball=$TGZ (from package.json name=$PKG_NAME)"
-LIST_LOG="$EVIDENCE_DIR/pack-list-plan11-${TS}.log.txt"
+LIST_LOG="$EVIDENCE_DIR/pack-list-clawhub-${TS}.log.txt"
 
 {
-  echo "# npm pack list — Plan 11 dry-run"
+  echo "# npm pack list — ClawHub stage"
   echo "# tarball: $TGZ"
   echo "# generated: $TS"
   tar -tzf "$TGZ"

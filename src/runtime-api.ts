@@ -2,15 +2,15 @@
  * SDK import adapter. OpenClaw betas move `plugin-sdk` subpaths.
  * Unit tests and local typecheck must not require a installed Gateway package.
  *
- * Documented host fields (docs.openclaw.ai, pluginApi floor >=2026.3.24-beta.2):
- * - package.json `openclaw.extensions` (TS local / workspace)
- * - package.json `openclaw.runtimeExtensions` (built dist for npm/ClawHub)
+ * Documented host fields (docs.openclaw.ai, pluginApi floor >=2026.7.1-2):
+ * - package.json `openclaw.extensions` / `runtimeExtensions` → `./dist/index.js` (published)
  * - `definePluginEntry` from `openclaw/plugin-sdk/plugin-entry`
  * - `api.registerContextEngine`, `api.lifecycle.registerRuntimeLifecycle`
  * - Plan 08: `api.registerCli`, `api.registerHttpRoute`, `api.registerGatewayMethod`
  *   (optional — missing adapters → CLI still ships via in-process handlers)
  * - Plan 09: `api.registerControlUiDescriptor` or
  *   `api.session.controls.registerControlUiDescriptor` (tab + path → sandboxed frame)
+ * - Host `2026.7.1-2` has no doctor-check registrar; operators use `openclaw compressor doctor`.
  *
  * Typed host seam (not yet observed on this machine's SDK):
  * `info.hostRequirements["agent-run"].requiredCapabilities` including
@@ -29,7 +29,6 @@ export type OpenClawPluginApi = {
       dispose?: () => void | Promise<void>;
     }) => void;
   };
-  registerDoctorCheck?: (check: unknown) => void;
   securityAuditCollectors?: unknown;
   /** Plan 08 — plugin CLI group `compressor`. */
   registerCli?: (opts: {

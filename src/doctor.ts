@@ -155,17 +155,4 @@ export function runDoctorChecks(ctx: DoctorContext): DoctorFinding[] {
   return findings;
 }
 
-export function registerDoctorChecks(
-  api: { registerDoctorCheck?: (check: unknown) => void },
-  getCtx: () => DoctorContext,
-): void {
-  if (typeof api.registerDoctorCheck !== "function") {
-    return;
-  }
-  api.registerDoctorCheck({
-    id: "compressor",
-    run: () => runDoctorChecks(getCtx()),
-  });
-}
-
 export { KEEP_RECENT_WARN_THRESHOLD };
