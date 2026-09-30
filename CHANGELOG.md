@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+
+Identity lock: `package.json` `0.1.4` is the source of truth; README heading/npm package line and `openclaw.plugin.json` `version` match that string. Predeploy ClawHub dry-run uses `--source-repo soltrinox/OPENCLAW-comPREssOR`. This version covers in-tree pipeline + identity-lock work (version lock, local predeploy, GO-gated npm then ClawHub). Live `npm publish` and `clawhub package publish` are not claimed here.
+
 ## 0.1.3
 
 Portal docs refresh for ClawHub homepage: README rewritten (mechanism/outcome/scope, install, doctor CLI, dual-state figures); `docs/OPENCLAW.md` Gateway integration; `docs/value.md` honesty gate (no Cursor PERFORMANCE / absolute % product claims; measurement → `docs/RESEARCH.md`); shipped mechanism figures under `docs/figures/` (OC-05/08/09/10). Doctor remains `openclaw compressor doctor` on host `2026.7.1-2` (no `registerDoctorCheck`).

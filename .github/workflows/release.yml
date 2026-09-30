@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      EVIDENCE_DIR: ${{ github.workspace }}/test-results/pipeline
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+      CLAWHUB_SESSION: ${{ secrets.CLAWHUB_SESSION }}
+      LIVE_PUBLISH: ${{ secrets.LIVE_PUBLISH }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - name: Build gates
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE_DIR"
+          npm ci
+          npm test
+          npm run typecheck
+          npm run pack
+      - name: npm publish
+        run: |
+          set -euo pipefail
+          if [ -z "${NPM_TOKEN:-}" ]; then
+            echo "[SKIP] NPM_TOKEN not set — npm publish skipped"
+            exit 0
+          fi
+          echo "[publish] npm publish --access public"
+          npm publish --access public
+          echo "[PASS] npm publish"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: ClawHub publish
+        run: |
+          set -euo pipefail
+          if [ -z "${CLAWHUB_TOKEN:-}${CLAWHUB_SESSION:-}" ] || [ "${LIVE_PUBLISH:-}" != "1" ]; then
+            echo "[SKIP] ClawHub publish requires secret + LIVE_PUBLISH=1"
+            exit 0
+          fi
+          VERSION="$(node -p 'require("./package.json").version')"
+          PREFIX="$(node -p 'require("./package.json").name.replace(/^@/, "").replace(/\\//g, "-")')"
+          TGZ="${PREFIX}-${VERSION}.tgz"
+          if [ ! -f "$TGZ" ]; then
+            echo "[FAIL] missing $TGZ"
+            exit 1
+          fi
+          echo "[publish] clawhub package publish $TGZ (CLI; not website folder picker)"
+          npx clawhub package publish "$TGZ" --no-input --json \
+            --source-repo soltrinox/OPENCLAW-comPREssOR \
+            --source-commit "${GITHUB_SHA}"
+          echo "[PASS] clawhub CLI publish"

@@ -148,7 +148,7 @@ if [[ "${CLAWHUB_PRESENT}" -eq 1 ]]; then
   echo "[RUN] clawhub-dry-run"
   set +e
   "${CLAWHUB_VIA[@]}" package publish . --dry-run --json --no-input \
-    --source-repo soltrinox/openclaw-compressor \
+    --source-repo soltrinox/OPENCLAW-comPREssOR \
     --source-commit "${SOURCE_COMMIT}" >"${DRY_CHILD}" 2>&1
   DRY_RC=$?
   set -e

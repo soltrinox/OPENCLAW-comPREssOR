@@ -3,6 +3,7 @@
  * Engine-only two-arm probe (Plan 05 mechanism 1).
  * Loads frozen JSONL, computes L_uncompacted_full vs compressor assemble.
  * Prefer real SidecarClient; fall back to packer mock that embeds fixture refs.
+ * Units are τ=chars4 only — do not claim billed provider η from this arm.
  *
  * Usage:
  *   node --experimental-strip-types scripts/probe-assemble-fixture.ts

@@ -461,24 +461,174 @@ export async function runCompressorCli(argv: string[], deps: CliDeps = {}): Prom
   }
 }
 
-/** Plugin SDK registration shape (registerCli). */
+/** Commander-like program surface used by OpenClaw plugin registerCli. */
+type CliProgram = {
+  command: (name: string) => CliCommandBuilder;
+};
+
+type CliCommandBuilder = {
+  description: (text: string) => CliCommandBuilder;
+  option: (flags: string, description?: string) => CliCommandBuilder;
+  argument?: (flags: string, description?: string) => CliCommandBuilder;
+  action: (fn: (...args: unknown[]) => unknown) => CliCommandBuilder;
+  command: (name: string) => CliCommandBuilder;
+};
+
+type RegisterCliOpts = {
+  commands?: string[];
+  descriptors?: Array<{ name: string; description: string; hasSubcommands?: boolean }>;
+  parentPath?: string[];
+};
+
+function optsFromActionArgs(args: unknown[]): Record<string, unknown> {
+  const last = args[args.length - 1];
+  return last && typeof last === "object" ? (last as Record<string, unknown>) : {};
+}
+
+function configFromGatewayAppConfig(
+  appConfig: unknown,
+  fallback: CliDeps["config"],
+): CliDeps["config"] {
+  if (!appConfig || typeof appConfig !== "object") return fallback;
+  const entries = (appConfig as { plugins?: { entries?: Record<string, { config?: Record<string, unknown> }> } })
+    .plugins?.entries;
+  const raw = entries?.compressor?.config;
+  if (!raw || typeof raw !== "object") return fallback;
+  try {
+    return validateConfig(raw).resolved;
+  } catch {
+    return fallback;
+  }
+}
+
+/** OpenClaw 2026.7.1+ registerCli(registrar, { commands|descriptors }). */
 export function registerCompressorCli(
   api: {
-    registerCli?: (opts: {
-      name: string;
-      description?: string;
-      handler: (ctx: { args: string[] }) => Promise<number> | number;
-    }) => void;
+    registerCli?: (
+      registrar: (ctx: { program: CliProgram; config?: unknown }) => void | Promise<void>,
+      opts?: RegisterCliOpts,
+    ) => void;
   },
   depsFactory?: () => CliDeps,
 ): void {
   if (typeof api.registerCli !== "function") return;
-  api.registerCli({
-    name: "compressor",
-    description: "Compressor stats/status/purge/doctor (plugin namespace; unit=tau)",
-    async handler(ctx) {
-      const deps = depsFactory?.() ?? {};
-      return runCompressorCli(ctx.args, deps);
+  const description =
+    "Compressor stats/status/purge/export/doctor (plugin namespace; unit=tau)";
+  api.registerCli(
+    async ({ program, config: appConfig }) => {
+      const deps = (): CliDeps => {
+        const base = depsFactory?.() ?? {};
+        const fromGateway = configFromGatewayAppConfig(appConfig, base.config);
+        return { ...base, config: fromGateway ?? base.config };
+      };
+      const root = program.command("compressor").description(description);
+
+      const finish = async (code: number) => {
+        if (code !== 0) process.exitCode = code;
+        return code;
+      };
+
+      root
+        .command("stats")
+        .description("Efficiency table (unit=tau)")
+        .option("--session <id>", "Sanitized session id")
+        .option("--json", "Print JSON")
+        .action(async (...args: unknown[]) => {
+          const opts = optsFromActionArgs(args);
+          await finish(
+            await runStatsCommand(
+              {
+                session: opts.session != null ? String(opts.session) : undefined,
+                json: Boolean(opts.json),
+              },
+              deps(),
+            ),
+          );
+        });
+
+      root
+        .command("status")
+        .description("Packer health + stage-log age")
+        .option("--session <id>", "Sanitized session id")
+        .action(async (...args: unknown[]) => {
+          const opts = optsFromActionArgs(args);
+          await finish(
+            await runStatusCommand(
+              { session: opts.session != null ? String(opts.session) : undefined },
+              deps(),
+            ),
+          );
+        });
+
+      root
+        .command("purge")
+        .description("Purge session state under stateDir")
+        .option("--session <id>", "Sanitized session id")
+        .option("--confirm", "Confirm token = session id")
+        .option("--i-know", "Alias for --confirm")
+        .action(async (...args: unknown[]) => {
+          const opts = optsFromActionArgs(args);
+          await finish(
+            await runPurgeCommand(
+              {
+                session: opts.session != null ? String(opts.session) : undefined,
+                confirm: Boolean(opts.confirm),
+                iKnow: Boolean(opts["iKnow"] ?? opts["i-know"]),
+              },
+              deps(),
+            ),
+          );
+        });
+
+      root
+        .command("export")
+        .description("Count-only CSV/JSON export")
+        .option("--session <id>", "Sanitized session id")
+        .option("--format <fmt>", "csv|json")
+        .option("--out <path>", "Output path")
+        .action(async (...args: unknown[]) => {
+          const opts = optsFromActionArgs(args);
+          const formatRaw = opts.format != null ? String(opts.format) : undefined;
+          const format =
+            formatRaw === "csv" || formatRaw === "json" ? formatRaw : undefined;
+          await finish(
+            await runExportCommand(
+              {
+                session: opts.session != null ? String(opts.session) : undefined,
+                format,
+                out: opts.out != null ? String(opts.out) : undefined,
+              },
+              deps(),
+            ),
+          );
+        });
+
+      root
+        .command("doctor")
+        .description("Plugin doctor checks (CLI; not openclaw doctor)")
+        .option("--session <id>", "Sanitized session id")
+        .option("--json", "Print JSON")
+        .action(async (...args: unknown[]) => {
+          const opts = optsFromActionArgs(args);
+          await finish(
+            await runDoctorCommand(
+              {
+                session: opts.session != null ? String(opts.session) : undefined,
+                json: Boolean(opts.json),
+              },
+              deps(),
+            ),
+          );
+        });
     },
-  });
+    {
+      descriptors: [
+        {
+          name: "compressor",
+          description,
+          hasSubcommands: true,
+        },
+      ],
+    },
+  );
 }

@@ -2,7 +2,7 @@
   "id": "compressor",
   "name": "comPREssOR",
   "description": "comPREssOR context-engine plugin. Registers the exclusive slot; assemble packs dual-state memory.",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "kind": "context-engine",
   "activation": {
     "onStartup": true
@@ -50,6 +50,6 @@
     }
   },
   "contracts": {
-    "agentToolResultMiddleware": ["openclaw"]
+    "agentToolResultMiddleware": ["openclaw", "codex"]
   }
 }

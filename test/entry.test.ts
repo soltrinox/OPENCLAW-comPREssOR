@@ -37,6 +37,7 @@ describe("plugin entry", () => {
     expect(registerContextEngine.mock.calls[0]![0]).toBe("compressor");
     expect(registerMemoryCapability).not.toHaveBeenCalled();
     expect(registerRuntimeLifecycle).toHaveBeenCalled();
+    expect(registerRuntimeLifecycle.mock.calls[0]![0].id).toBe("compressor-dispose");
   });
 
   it("declares assemble-before-prompt and ownsCompaction on factory info", () => {

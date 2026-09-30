@@ -1,6 +1,6 @@
-# comPREssOR (`@soltrinox/openclaw-compressor@0.1.3`)
+# comPREssOR (`@soltrinox/openclaw-compressor@0.1.4`)
 
-OpenClaw **context-engine** plugin. Slot/id `compressor`. npm package **`@soltrinox/openclaw-compressor@0.1.3`** (ClawHub owner scope `soltrinox`).
+OpenClaw **context-engine** plugin. Slot/id `compressor`. npm package **`@soltrinox/openclaw-compressor@0.1.4`** (ClawHub owner scope `soltrinox`).
 
 ## Mechanism / outcome / scope
 

@@ -39,7 +39,8 @@
     "pack": "bash scripts/pack.sh",
     "stage:clawhub": "bash scripts/stage-clawhub-upload.sh",
     "predeploy": "bash scripts/predeploy-smoke.sh",
-    "release:publish": "bash scripts/release-publish.sh"
+    "release:publish": "bash scripts/release-publish.sh",
+    "pipeline": "bash scripts/pipeline/pipeline.sh"
   },
   "peerDependencies": {
     "openclaw": ">=2026.7.1-2"

@@ -82,3 +82,23 @@ In-process handlers (no standalone Express). When the Gateway exposes `registerH
 - `POST /api/plugin/compressor/manage/purge` → requires `confirm` equal to session id
 
 If those registrars are missing, CLI still calls the same handlers; HTTP routes are simply unavailable.
+
+## Optional Docker Gateway
+
+Use the **official** OpenClaw image (no plugin Dockerfile). Pin a tag ≥ `2026.7.1-2`. Throwaway operator harness: `OPENCLAW/PLANS/docker/` (Compose project `oc-compressor-gw`).
+
+```bash
+cd OPENCLAW/PLANS/docker
+cp .env.example .env   # set OPENCLAW_GATEWAY_TOKEN; optional provider keys for GO-2
+./setup.sh             # pull, onboard --skip-channels, up
+# Install + slot + inspect + doctor (runs inside openclaw-gateway, not openclaw-cli):
+../../COMPRESSOR/scripts/docker-gateway-probe.sh
+```
+
+Inside the gateway container the probe runs:
+
+1. `openclaw plugins install -l /plugin` (COMPRESSOR bind-mounted read-only)
+2. `plugins.slots.contextEngine=compressor`, `entries.compressor.enabled=true`, `engineImpl=ts`
+3. Restart → `openclaw plugins inspect compressor --runtime --json` → `openclaw compressor doctor`
+
+Prefer `engineImpl=ts` on official Node images so doctor does not require a sidecar venv. Live model turn and billed usage A/B are operator-gated (GO-2 / GO-3); see `docs/RESEARCH.md` Docker Gateway table.

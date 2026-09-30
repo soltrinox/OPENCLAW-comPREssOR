@@ -55,8 +55,8 @@ describe("middleware.tool (Plan 10)", () => {
     const manifest = JSON.parse(
       readFileSync(join(here, "../openclaw.plugin.json"), "utf8"),
     ) as { contracts?: { agentToolResultMiddleware?: string[] } };
-    expect(manifest.contracts?.agentToolResultMiddleware).toEqual(["openclaw"]);
-    expect(manifest.contracts?.agentToolResultMiddleware).not.toContain("codex");
+    expect(manifest.contracts?.agentToolResultMiddleware).toEqual(["openclaw", "codex"]);
+    expect(manifest.contracts?.agentToolResultMiddleware).toContain("codex");
   });
 
   it("channel-aware: skip group bystander unless mentioned", () => {

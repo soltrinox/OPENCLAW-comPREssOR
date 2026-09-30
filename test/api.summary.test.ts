@@ -318,10 +318,15 @@ describe("doctor + register (Plan 08)", () => {
     };
     register(api);
     expect(registerCli).toHaveBeenCalled();
-    expect(registerCli.mock.calls[0]![0].name).toBe("compressor");
+    const cliOpts = registerCli.mock.calls[0]![1] as {
+      descriptors?: Array<{ name: string }>;
+    };
+    expect(cliOpts.descriptors?.[0]?.name).toBe("compressor");
+    expect(typeof registerCli.mock.calls[0]![0]).toBe("function");
     expect(registerHttpRoute.mock.calls.length).toBeGreaterThanOrEqual(3);
     const paths = registerHttpRoute.mock.calls.map((c) => c[0].path as string);
     expect(paths).toContain("/api/plugin/compressor/stats/summary");
+    expect(registerHttpRoute.mock.calls[0]![0].auth).toBe("gateway");
   });
 
   it("runCompressorCli parse group", async () => {

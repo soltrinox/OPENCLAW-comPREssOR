@@ -121,8 +121,30 @@ export ARTIFACTS_DIR=test-results/openclaw-compressor
 ./scripts/probe-openclaw.sh
 # optional live packer:
 PROBE_USE_SIDECAR=1 ./scripts/probe-openclaw.sh
+# Docker Gateway load row (Plan 12):
+../PLANS/docker/setup.sh
+./scripts/docker-gateway-probe.sh
 ```
+
+## Docker Gateway (Plan 12)
+
+Official image only (`ghcr.io/openclaw/openclaw:2026.7.1-2`, digest recorded in evidence). Plugin bind-mounted at `/plugin:ro`. Install/inspect/doctor run inside **`openclaw-gateway`** (not `openclaw-cli`). `engineImpl=ts`.
+
+| Field | Value | Unit / note |
+|-------|-------|-------------|
+| Image | `ghcr.io/openclaw/openclaw:2026.7.1-2@sha256:8789721d2e9b24b780a1504b56deb4c6bd5c7dbf96a1dd117e7c45c2ed72c8ac` | pin ≥ floor `2026.7.1-2` |
+| Container CLI | `OpenClaw 2026.7.1` | from `openclaw --version` |
+| `plugins install -l /plugin` | PASS | gateway container |
+| Slot | `contextEngine=compressor` | + `entries.compressor.enabled=true` |
+| `engineImpl` | `ts` | Node image; no sidecar venv required |
+| `inspect --runtime` | PASS | `id=compressor`, `kind=context-engine`, `status=loaded`, `cliCommands=["compressor"]` |
+| `openclaw compressor doctor` | PASS (exit 0) | reads gateway plugin config for `engineImpl` |
+| `docker_gateway` matrix | PASS | `scripts/probe-openclaw.sh` with `DOCKER_GATEWAY=1` |
+| `live_gateway_model` | NOT_RUN | needs GO-2: `LIVE_GATEWAY_GO=1` + provider key in throwaway `.env` |
+| `billed_ab` | NOT_RUN | needs GO-3: `BILLED_AB_GO=1` + Gateway-exposed provider usage; units `provider_prompt_tokens` / `provider_completion_tokens` — never USD; never mix with τ |
+
+Harness: `OPENCLAW/PLANS/docker/` (project `oc-compressor-gw`). Canonical load evidence: `OPENCLAW/PLANS/evidence/docker-gateway-20260816-143253.log.txt`. GO-gates: `docker-gateway-go-gates-20260816-143619.log.txt`.
 
 ## Open questions
 
-See SPECS §18. Live Gateway inject path remains a host-seam when `openclaw` is installed. Codex native-history scope not exercised (`SCOPE_EMBEDDED_ONLY` N/A).
+See SPECS §18. Live Gateway model turn and billed A/B remain operator-gated (GO-2 / GO-3). Codex native-history scope not exercised (`SCOPE_EMBEDDED_ONLY` N/A).

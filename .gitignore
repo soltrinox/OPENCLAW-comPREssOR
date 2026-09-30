@@ -12,3 +12,19 @@ coverage/
 test-results/
 reports/
 .npmrc
+
+# --- workspace-hygiene-freeze-2026-09-16 ---
+.DS_Store
+logs/
+*.log
+target/
+node_modules/
+.next/
+.lake/
+/.lake/
+__pycache__/
+.env
+client_secret*.json
+credentials.json
+token.json
+private.json

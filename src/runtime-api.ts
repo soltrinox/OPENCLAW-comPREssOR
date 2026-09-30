@@ -24,23 +24,33 @@ export type OpenClawPluginApi = {
   registerMemoryCapability?: (capability: unknown) => void;
   lifecycle?: {
     registerRuntimeLifecycle: (hooks: {
+      id: string;
       onReload?: () => void | Promise<void>;
       onShutdown?: () => void | Promise<void>;
       dispose?: () => void | Promise<void>;
+      cleanup?: () => void | Promise<void>;
     }) => void;
   };
   securityAuditCollectors?: unknown;
-  /** Plan 08 — plugin CLI group `compressor`. */
-  registerCli?: (opts: {
-    name: string;
-    description?: string;
-    handler: (ctx: { args: string[] }) => Promise<number> | number;
-  }) => void;
+  /**
+   * Plan 08 / Plan 12 — plugin CLI group `compressor`.
+   * Host 2026.7.1+: `registerCli(registrar, { commands|descriptors })`.
+   */
+  registerCli?: (
+    registrar: (ctx: { program: unknown }) => void | Promise<void>,
+    opts?: {
+      commands?: string[];
+      descriptors?: Array<{ name: string; description: string; hasSubcommands?: boolean }>;
+      parentPath?: string[];
+    },
+  ) => void;
   /** Plan 08 — HTTP/IPC GET adapters when Gateway exposes them. */
   registerHttpRoute?: (opts: {
     method: string;
     path: string;
     handler: (req: unknown) => unknown | Promise<unknown>;
+    auth?: "gateway" | "plugin";
+    match?: "exact" | "prefix";
   }) => void;
   registerGatewayMethod?: (opts: {
     method: string;
@@ -67,6 +77,10 @@ export type PluginEntryShape = {
   description: string;
   register: PluginRegisterFn;
   configSchema?: unknown;
+  /** Host 2026.7.1+ reads this for middleware/runtime contracts when manifest merge is incomplete. */
+  contracts?: {
+    agentToolResultMiddleware?: string[];
+  };
 };
 
 /** Identity helper if `openclaw/plugin-sdk/plugin-entry` is not resolvable. */

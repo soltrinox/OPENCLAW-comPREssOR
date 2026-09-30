@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      LIVE_PUBLISH: forbidden
+      EVIDENCE_DIR: ${{ github.workspace }}/test-results/pipeline
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Test
+        run: npm test
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Pack
+        run: |
+          mkdir -p "$EVIDENCE_DIR"
+          npm run pack
+      - name: ClawHub validate
+        run: npx clawhub package validate . --json

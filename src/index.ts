@@ -252,6 +252,8 @@ function registerHttpAdapters(api: OpenClawPluginApi): void {
         method: route.method,
         path: route.path,
         handler: route.run,
+        // OpenClaw 2026.7.1+ requires auth: "gateway" | "plugin"
+        auth: "gateway",
       });
     }
   } else if (typeof api.registerGatewayMethod === "function") {
@@ -274,11 +276,15 @@ function registerHttpAdapters(api: OpenClawPluginApi): void {
 export function register(api: OpenClawPluginApi): void {
   api.registerContextEngine("compressor", factory);
   api.lifecycle?.registerRuntimeLifecycle({
+    id: "compressor-dispose",
     onReload: disposeAll,
     onShutdown: disposeAll,
     dispose: disposeAll,
+    cleanup: disposeAll,
   });
-  registerCompressorCli(api, () => ({ config: lastConfig }));
+  registerCompressorCli(api as Parameters<typeof registerCompressorCli>[0], () => ({
+    config: lastConfig,
+  }));
   registerHttpAdapters(api);
   registerCompressorControlUi(api);
 }
@@ -289,6 +295,9 @@ const plugin = definePluginEntry({
   description:
     "Registers context engine id compressor with ingest/assemble/compact/commitTurn lifecycle.",
   configSchema: loadManifestConfigSchema(),
+  contracts: {
+    agentToolResultMiddleware: ["openclaw", "codex"],
+  },
   register,
 });
 
